@@ -878,28 +878,49 @@ function renderCaso2DiagnosticCharts(diag) {
     ],
     colors: ["#18489B", "#FFFFFF", "#FF7C5C"],
     stroke: { width: [0, 3, 2.5], dashArray: [0, 0, 4], curve: "smooth" },
-    labels: evol.map((r) => formatMonthStr(r.Mes_Str)),
     annotations: {
       xaxis: [
         {
-          x: "Dic-25",
+          x: "2025-12",
           borderColor: "#FF7C5C",
           strokeDashArray: 3,
           label: {
             borderColor: "#FF7C5C",
-            style: { color: "#FFFFFF", background: "#7C2D12", fontSize: "10px", fontWeight: "bold", fontFamily: "Inter, sans-serif" },
-            text: "Salida G06/G07",
+            offsetY: 0,
+            style: {
+              color: "#FFFFFF",
+              background: "#7C2D12",
+              fontSize: "10px",
+              fontWeight: "bold",
+              fontFamily: "Inter, sans-serif",
+            },
+            text: "Salida G06/G07 (Dic-25)",
           },
         },
       ],
     },
     xaxis: {
       type: "category",
-      tickAmount: 7,
+      categories: evol.map((r) => r.Mes_Str),
       labels: {
         rotate: 0,
-        hideOverlappingLabels: true,
-        style: { fontSize: "10px", colors: "#FFFFFFB3", fontFamily: "Inter, sans-serif" },
+        style: {
+          fontSize: "10px",
+          colors: "#FFFFFFB3",
+          fontFamily: "Inter, sans-serif",
+        },
+        formatter: function (val) {
+          const map = {
+            "2025-09": "Sep-25",
+            "2025-11": "Nov-25",
+            "2026-01": "Ene-26",
+            "2026-03": "Mar-26",
+            "2026-05": "May-26",
+            "2026-07": "Jul-26",
+            "2026-09": "Sep-26",
+          };
+          return map[val] || "";
+        },
       },
       axisBorder: { color: "rgba(255, 255, 255, 0.08)" },
       axisTicks: { color: "rgba(255, 255, 255, 0.08)" },
@@ -931,7 +952,29 @@ function renderCaso2DiagnosticCharts(diag) {
       padding: { left: 10, right: 15 },
     },
     legend: { position: "top", labels: { colors: "#FFFFFFB3" }, fontFamily: "Inter, sans-serif" },
-    tooltip: { theme: "dark" },
+    tooltip: {
+      theme: "dark",
+      x: {
+        formatter: function (val) {
+          const full = {
+            "2025-09": "Sep 2025",
+            "2025-10": "Oct 2025",
+            "2025-11": "Nov 2025",
+            "2025-12": "Dic 2025 (Salida G06/G07)",
+            "2026-01": "Ene 2026",
+            "2026-02": "Feb 2026",
+            "2026-03": "Mar 2026",
+            "2026-04": "Abr 2026",
+            "2026-05": "May 2026",
+            "2026-06": "Jun 2026",
+            "2026-07": "Jul 2026",
+            "2026-08": "Ago 2026",
+            "2026-09": "Sep 2026",
+          };
+          return full[val] || val;
+        },
+      },
+    },
   };
   if (chartC2Break) chartC2Break.destroy();
   chartC2Break = new ApexCharts(
