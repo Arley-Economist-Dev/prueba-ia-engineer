@@ -451,7 +451,18 @@ function renderCaso1TrajectoryChart() {
     safetyStockTarget = mFound ? Math.round(mFound.Stock_Seguridad_Objetivo) : 0;
   }
 
-  const xLabels = rows.map((r) => r.Etiqueta_Mes);
+  const xLabels = rows.map((r) => {
+    const raw = r.Etiqueta_Mes || "";
+    if (raw.includes("Sep 2026")) return "Sep-26";
+    if (raw.includes("Oct 2026")) return "Oct-26";
+    if (raw.includes("Nov 2026")) return "Nov-26";
+    if (raw.includes("Dic 2026")) return "Dic-26";
+    if (raw.includes("Ene 2027")) return "Ene-27";
+    if (raw.includes("Feb 2027")) return "Feb-27";
+    if (raw.includes("Mar 2027")) return "Mar-27";
+    if (raw.includes("Abr 2027")) return "Abr-27";
+    return raw;
+  });
   const yInv = rows.map((r) => Math.round(r.Inventario_Cierre_Uds));
   const yDem = rows.map((r) => Math.round(r.Demanda_Mensual_Uds));
   const ySafety = rows.map(() => safetyStockTarget);
@@ -496,6 +507,7 @@ function renderCaso1TrajectoryChart() {
     xaxis: {
       categories: xLabels,
       labels: {
+        rotate: 0,
         style: { colors: "#FFFFFFB3", fontSize: "11px", fontFamily: "Inter, sans-serif" },
       },
       axisBorder: { color: "rgba(255, 255, 255, 0.08)" },
@@ -510,6 +522,7 @@ function renderCaso1TrajectoryChart() {
     grid: {
       borderColor: "rgba(255, 255, 255, 0.08)",
       xaxis: { lines: { show: false } },
+      padding: { left: 15, right: 15 },
     },
     legend: {
       position: "top",
@@ -603,16 +616,39 @@ async function initCaso2() {
   await fetchCaso2Priorizacion();
 }
 
+function formatMonthStr(isoStr) {
+  if (!isoStr) return "";
+  const parts = String(isoStr).split("-");
+  if (parts.length < 2) return isoStr;
+  const monthIdx = parseInt(parts[1], 10) - 1;
+  const shortMonths = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+  const mName = shortMonths[monthIdx] || parts[1];
+  const yr = parts[0].slice(-2);
+  return `${mName}-${yr}`;
+}
+
 function renderCaso2DiagnosticCharts(diag) {
-  // 1. Curva de Elasticidad de Contacto (Spline Smooth Line con Marcadores Fijos en T-20 vs T-3)
+  // 1. Curva de Retención según Anticipación de Contacto
   const manualCurve = diag.anticipation_curve.filter(
     (r) => r["Forma de pago"] === "Manual"
   );
   
-  const antCategories = manualCurve.map((r) =>
-    r.Tramo_Anticipacion.replace(/^\d+\.\s*/, "")
-  );
+  const cleanAntCategory = (cat) => {
+    if (!cat) return "";
+    if (cat.includes("Sin contacto")) return "Sin contacto";
+    if (cat.includes("<0") || cat.includes("Post")) return "< 0 días";
+    if (cat.includes("0 a 3") || cat.includes("1 - 3") || cat.includes("Crítico")) return "0 a 3 días";
+    if (cat.includes("4 a 9") || cat.includes("Tardío")) return "4 a 9 días";
+    if (cat.includes("10 a 19") || cat.includes("Moderado")) return "10 a 19 días";
+    if (cat.includes(">=20") || cat.includes("20") || cat.includes("meta")) return "≥ 20 días";
+    return cat.replace(/^\d+\.\s*/, "");
+  };
+
+  const antCategories = manualCurve.map((r) => cleanAntCategory(r.Tramo_Anticipacion));
   const antValues = manualCurve.map((r) => r.Tasa_Renovacion_Pct);
+
+  const idxMeta = antCategories.findIndex((c) => c.includes("≥ 20"));
+  const idxCrit = antCategories.findIndex((c) => c.includes("0 a 3"));
 
   const antOptions = {
     chart: {
@@ -644,56 +680,60 @@ function renderCaso2DiagnosticCharts(diag) {
     },
     annotations: {
       points: [
-        {
-          x: antCategories[antCategories.length - 1], // >= 20 días
-          y: antValues[antValues.length - 1],
-          marker: {
-            size: 8,
-            fillColor: "#10B981",
-            strokeColor: "#FFFFFF",
-            radius: 2,
-          },
-          label: {
-            borderColor: "#10B981",
-            offsetY: -10,
-            style: {
-              color: "#FFFFFF",
-              background: "#065F46",
-              fontSize: "10px",
-              fontWeight: 700,
-              fontFamily: "Inter, sans-serif",
-            },
-            text: `Meta T-20d: ${antValues[antValues.length - 1].toFixed(1)}%`,
-          },
-        },
-        {
-          x: antCategories[1], // 1 - 3 días
-          y: antValues[1],
-          marker: {
-            size: 8,
-            fillColor: "#FF7C5C",
-            strokeColor: "#FFFFFF",
-          },
-          label: {
-            borderColor: "#FF7C5C",
-            offsetY: 20,
-            style: {
-              color: "#FFFFFF",
-              background: "#7C2D12",
-              fontSize: "10px",
-              fontWeight: 700,
-              fontFamily: "Inter, sans-serif",
-            },
-            text: `Realidad T-3d: ${antValues[1].toFixed(1)}%`,
-          },
-        },
-      ],
+        idxMeta >= 0
+          ? {
+              x: antCategories[idxMeta],
+              y: antValues[idxMeta],
+              marker: {
+                size: 7,
+                fillColor: "#10B981",
+                strokeColor: "#FFFFFF",
+                radius: 2,
+              },
+              label: {
+                borderColor: "#10B981",
+                offsetY: -10,
+                style: {
+                  color: "#FFFFFF",
+                  background: "#065F46",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "Inter, sans-serif",
+                },
+                text: `Meta T-20d: ${antValues[idxMeta].toFixed(1)}%`,
+              },
+            }
+          : null,
+        idxCrit >= 0
+          ? {
+              x: antCategories[idxCrit],
+              y: antValues[idxCrit],
+              marker: {
+                size: 7,
+                fillColor: "#FF7C5C",
+                strokeColor: "#FFFFFF",
+              },
+              label: {
+                borderColor: "#FF7C5C",
+                offsetY: 22,
+                style: {
+                  color: "#FFFFFF",
+                  background: "#7C2D12",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  fontFamily: "Inter, sans-serif",
+                },
+                text: `Crítico (0-3d): ${antValues[idxCrit].toFixed(1)}%`,
+              },
+            }
+          : null,
+      ].filter(Boolean),
     },
     xaxis: {
       categories: antCategories,
       labels: {
         style: { colors: "#FFFFFFB3", fontSize: "10px", fontFamily: "Inter, sans-serif" },
-        rotate: -20,
+        rotate: 0,
       },
       axisBorder: { color: "rgba(255, 255, 255, 0.08)" },
       axisTicks: { color: "rgba(255, 255, 255, 0.08)" },
@@ -710,6 +750,7 @@ function renderCaso2DiagnosticCharts(diag) {
     grid: {
       borderColor: "rgba(255, 255, 255, 0.08)",
       xaxis: { lines: { show: false } },
+      padding: { left: 10, right: 10 },
     },
     legend: { show: false },
     tooltip: {
@@ -837,23 +878,29 @@ function renderCaso2DiagnosticCharts(diag) {
     ],
     colors: ["#18489B", "#FFFFFF", "#FF7C5C"],
     stroke: { width: [0, 3, 2.5], dashArray: [0, 0, 4], curve: "smooth" },
-    labels: evol.map((r) => r.Mes_Str),
+    labels: evol.map((r) => formatMonthStr(r.Mes_Str)),
     annotations: {
       xaxis: [
         {
-          x: "2025-12",
+          x: "Dic-25",
           borderColor: "#FF7C5C",
           strokeDashArray: 3,
           label: {
             borderColor: "#FF7C5C",
-            style: { color: "#FFFFFF", background: "#7C2D12", fontSize: "10px", fontWeight: "bold" },
-            text: "Salida G06 y G07",
+            style: { color: "#FFFFFF", background: "#7C2D12", fontSize: "10px", fontWeight: "bold", fontFamily: "Inter, sans-serif" },
+            text: "Salida G06/G07",
           },
         },
       ],
     },
     xaxis: {
-      labels: { rotate: -35, style: { fontSize: "10px", colors: "#FFFFFFB3", fontFamily: "Inter, sans-serif" } },
+      type: "category",
+      tickAmount: 7,
+      labels: {
+        rotate: 0,
+        hideOverlappingLabels: true,
+        style: { fontSize: "10px", colors: "#FFFFFFB3", fontFamily: "Inter, sans-serif" },
+      },
       axisBorder: { color: "rgba(255, 255, 255, 0.08)" },
       axisTicks: { color: "rgba(255, 255, 255, 0.08)" },
     },
@@ -881,6 +928,7 @@ function renderCaso2DiagnosticCharts(diag) {
     grid: {
       borderColor: "rgba(255, 255, 255, 0.08)",
       xaxis: { lines: { show: false } },
+      padding: { left: 10, right: 15 },
     },
     legend: { position: "top", labels: { colors: "#FFFFFFB3" }, fontFamily: "Inter, sans-serif" },
     tooltip: { theme: "dark" },
@@ -1080,6 +1128,7 @@ function renderCaso2RoiBarsChart(lanes, sm) {
     grid: {
       borderColor: "rgba(255, 255, 255, 0.08)",
       xaxis: { lines: { show: false } },
+      padding: { left: 10, right: 15 },
     },
     legend: { show: false },
     tooltip: {

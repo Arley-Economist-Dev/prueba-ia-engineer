@@ -28,3 +28,4 @@ version: 1.0.0
 - Formato de Tooltip: Tarjeta flotante con fondo `#122092`, borde `#1C376C`, sombra difusa (`box-shadow: 0 4px 20px rgba(0,0,0,0.5)`).
 - Formateo estricto de valores: Separadores de miles y moneda en USD (`$#,##0`), porcentajes con un solo decimal (`0.0%`).
 - Animaciones fluidas: Duración máxima de 400ms al cargar. Desactivar re-animación continua durante el movimiento de los sliders interactivos para evitar latencia (`dynamicAnimation: { enabled: false }`).
+

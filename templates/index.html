@@ -222,18 +222,18 @@
         </div>
       </div>
 
-      <!-- Gráficos ApexCharts: Barras Horizontales y Dona de Margen -->
+      <!-- Gráficos de Pedidos y Margen -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="cp-chart-card p-5 lg:col-span-7">
           <div class="mb-3">
-            <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-              <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2 truncate">
+              <svg class="w-4 h-4 text-[#38BDF8] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
               </svg>
-              <span>Pedido Recomendado Oct-2026 vs Inventario Actual y Tránsito</span>
+              <span>Pedido Sugerido vs Inventario y Tránsito</span>
             </h3>
             <p class="text-xs text-white/70">
-              Barras horizontales ordenadas de mayor a menor con marcadores visuales para Lote Mínimo de fábrica
+              Comparativa por modelo con indicador de lote mínimo de fábrica
             </p>
           </div>
           <div id="chart-c1-bars" class="w-full h-[375px]"></div>
@@ -241,14 +241,14 @@
 
         <div class="cp-chart-card p-5 lg:col-span-5">
           <div class="mb-3">
-            <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-              <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2 truncate">
+              <svg class="w-4 h-4 text-[#38BDF8] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>
               </svg>
-              <span>Composición de Margen Bruto por Modelo (Top 3 + Otros)</span>
+              <span>Margen Bruto Estimado por Modelo</span>
             </h3>
             <p class="text-xs text-white/70">
-              Distribución de margen sin saturación (máximo 4 categorías según regla Tufte)
+              Aporte proyectado por línea de vehículo al resultado total
             </p>
           </div>
           <div id="chart-c1-donut" class="w-full h-[375px]"></div>
@@ -299,20 +299,20 @@
         </div>
       </div>
 
-      <!-- Gráficos Inferiores: Curva de Inventario (Spline Area) y Mezcla Versión/Color -->
+      <!-- Gráficos Inferiores: Proyección Mensual de Inventario y Mezcla Versión/Color -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
         <div class="cp-chart-card p-5 lg:col-span-6">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-            <div>
-              <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div class="min-w-0 flex-1">
+              <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2 truncate">
+                <svg class="w-4 h-4 text-[#38BDF8] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
                 </svg>
-                <span>Curva de Cobertura Mensual Proyectada vs Stock de Seguridad</span>
+                <span class="truncate">Proyección Mensual de Inventario</span>
               </h3>
-              <p class="text-xs text-white/70">Spline Area mostrando inventario proyectado y línea fija de seguridad recomendada</p>
+              <p class="text-xs text-white/70 truncate">Evolución de existencias proyectadas frente al stock de seguridad</p>
             </div>
-            <select id="c1-curve-model-select" onchange="renderCaso1TrajectoryChart()" class="bg-[#122092] text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-[#1C376C] focus:outline-none">
+            <select id="c1-curve-model-select" onchange="renderCaso1TrajectoryChart()" class="bg-[#122092] text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-[#1C376C] focus:outline-none flex-shrink-0">
               <option value="ALL">Todos los Modelos (Consolidado)</option>
             </select>
           </div>
@@ -321,16 +321,16 @@
 
         <div class="cp-chart-card p-5 lg:col-span-6">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-            <div>
-              <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <div class="min-w-0 flex-1">
+              <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2 truncate">
+                <svg class="w-4 h-4 text-[#38BDF8] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
                 </svg>
-                <span>Mezcla Óptima Recomendada por Versión y Color (Hamilton)</span>
+                <span class="truncate">Mezcla Sugerida por Versión y Color</span>
               </h3>
-              <p class="text-xs text-white/70">Asignación exacta según rotación y quiebres CRM sin saturación perceptual</p>
+              <p class="text-xs text-white/70 truncate">Distribución de pedidos según rotación y demanda CRM</p>
             </div>
-            <select id="c1-mix-model-select" onchange="renderCaso1MixChart()" class="bg-[#122092] text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-[#1C376C] focus:outline-none">
+            <select id="c1-mix-model-select" onchange="renderCaso1MixChart()" class="bg-[#122092] text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-[#1C376C] focus:outline-none flex-shrink-0">
             </select>
           </div>
           <div id="chart-c1-mix" class="w-full h-[360px]"></div>
@@ -371,46 +371,46 @@
         </div>
       </div>
 
-      <!-- 1. Panel de Diagnóstico Ejecutivo (3 Gráficos ApexCharts - Skill: data-visualization) -->
+      <!-- 1. Panel de Diagnóstico Ejecutivo (3 Gráficos ApexCharts) -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Gráfico 1: Curva de Elasticidad de Contacto -->
+        <!-- Gráfico 1: Impacto del Contacto Temprano -->
         <div class="cp-chart-card p-5">
-          <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <h3 class="text-sm font-bold text-white flex items-center gap-1.5 truncate">
+            <svg class="w-4 h-4 text-[#38BDF8] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
             </svg>
-            <span>Curva de Elasticidad de Contacto (Spline)</span>
+            <span class="truncate">Impacto del Contacto Temprano</span>
           </h3>
-          <p class="text-xs text-white/70 mb-2">
-            Línea suave destacando con anotación fija el punto meta T-20 días (69.7%) vs T-3 días (31.3%)
+          <p class="text-xs text-white/70 mb-2 truncate">
+            Tasa de renovación según días de contacto previo al vencimiento
           </p>
           <div id="chart-c2-anticipation" class="w-full h-[310px]"></div>
         </div>
 
-        <!-- Gráfico 2: Distribución de Carga Operativa (Donut de una sola capa) -->
+        <!-- Gráfico 2: Distribución de Llamadas por Cartera -->
         <div class="cp-chart-card p-5">
-          <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <h3 class="text-sm font-bold text-white flex items-center gap-1.5 truncate">
+            <svg class="w-4 h-4 text-[#38BDF8] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>
             </svg>
-            <span>Distribución de Carga Operativa (Donut)</span>
+            <span class="truncate">Distribución de Llamadas por Cartera</span>
           </h3>
-          <p class="text-xs text-white/70 mb-2">
-            Donut de una capa contrastando el 12.6% de llamadas gastadas en cobro automático vs Manual
+          <p class="text-xs text-white/70 mb-2 truncate">
+            Volumen de llamadas en cobros automáticos vs gestión manual
           </p>
           <div id="chart-c2-payment" class="w-full h-[310px]"></div>
         </div>
 
-        <!-- Gráfico 3: Quiebre Estructural Diciembre 2025 -->
+        <!-- Gráfico 3: Evolución Operativa y Retención -->
         <div class="cp-chart-card p-5">
-          <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <h3 class="text-sm font-bold text-white flex items-center gap-1.5 truncate">
+            <svg class="w-4 h-4 text-[#38BDF8] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
             </svg>
-            <span>Quiebre Estructural Dic-2025 (Salida G06/G07)</span>
+            <span class="truncate">Evolución Operativa y Retención</span>
           </h3>
-          <p class="text-xs text-white/70 mb-2">
-            Salida de 2 gestores (7 &rarr; 5): la carga subió a 381 pólizas y la renovación cayó a 50.6%
+          <p class="text-xs text-white/70 mb-2 truncate">
+            Carga de pólizas por gestor y tasa de renovación en el tiempo
           </p>
           <div id="chart-c2-break" class="w-full h-[310px]"></div>
         </div>
@@ -566,16 +566,16 @@
           </div>
         </div>
 
-        <!-- Gráfico de Barras de Impacto Financiero ROI (Skill: data-visualization) -->
+        <!-- Gráfico de Impacto Financiero ROI -->
         <div class="cp-chart-card p-5 lg:col-span-5">
-          <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
-            <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2 truncate">
+            <svg class="w-4 h-4 text-[#38BDF8] flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>
-            <span>Impacto Financiero Anual: Comisiones Rescatadas por Carril (USD)</span>
+            <span class="truncate">Comisiones Rescatadas por Carril</span>
           </h3>
-          <p class="text-xs text-white/70 mb-2">
-            Aporte acumulado por carril ordenado de mayor a menor con destaque en Total Rescatado
+          <p class="text-xs text-white/70 mb-2 truncate">
+            Aporte financiero anual proyectado por carril operativo (USD)
           </p>
           <div id="chart-c2-roi-bars" class="w-full h-[295px]"></div>
         </div>
@@ -762,33 +762,76 @@
     </div>
   </div>
 
-  <!-- PIE DE PÁGINA CORPORATIVO (OFICIAL WWW.CASAPELLAS.COM) -->
+  <!-- PIE DE PÁGINA CORPORATIVO OFICIAL CASA PELLAS -->
   <footer class="bg-[#002D62] text-white mt-12 border-t-4 border-[#004899]">
     <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-8">
-      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 pb-6 border-b border-blue-900/60">
+      <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-6 pb-6 border-b border-blue-900/60">
         <div>
-          <div class="flex items-center gap-3">
-            <span class="text-lg font-extrabold tracking-tight">CASA PELLAS</span>
-            <span class="text-xs text-red-400 font-bold uppercase tracking-widest">Suficiente Garantía</span>
-          </div>
-          <p class="text-xs text-blue-200 mt-1 max-w-md">
-            Casa Pellas, Managua Nicaragua · De la rotonda el Güegüense 350 mts. al sur · Telf. 2255-4444
+          <img src="/branding/logo-fondo.webp" alt="Casa Pellas" class="h-9 w-auto mb-3" />
+          <p class="text-xs text-blue-100/90 leading-relaxed font-normal">
+            Casa Pellas, Managua Nicaragua<br/>
+            De la rotonda el Güegüense 350 mts. al sur<br/>
+            Telf. 2255-4444
           </p>
         </div>
-        <div class="flex items-center gap-6 text-xs text-blue-200">
-          <span class="hover:text-white transition cursor-default">Toyota</span>
-          <span class="hover:text-white transition cursor-default">Hino</span>
-          <span class="hover:text-white transition cursor-default">Suzuki</span>
-          <span class="hover:text-white transition cursor-default">Yamaha</span>
-          <span class="hover:text-white transition cursor-default">Capesa Seguros</span>
+        <div>
+          <h4 class="text-xs font-bold uppercase tracking-wider text-white mb-3">REDES SOCIALES</h4>
+          <div class="flex items-center gap-2.5">
+            <!-- Facebook -->
+            <a href="https://www.facebook.com/casapellas" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#3B5998] flex items-center justify-center text-white hover:opacity-90 transition shadow-sm" aria-label="Facebook">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </a>
+            <!-- YouTube -->
+            <a href="https://www.youtube.com/@casapellas" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#E52D27] flex items-center justify-center text-white hover:opacity-90 transition shadow-sm" aria-label="YouTube">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/casapellas" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#3F4B5E] flex items-center justify-center text-white hover:opacity-90 transition shadow-sm" aria-label="Instagram">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </a>
+            <!-- LinkedIn -->
+            <a href="https://www.linkedin.com/company/casa-pellas" target="_blank" rel="noopener noreferrer" class="w-8 h-8 rounded-full bg-[#0A66C2] flex items-center justify-center text-white hover:opacity-90 transition shadow-sm" aria-label="LinkedIn">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+            </a>
+          </div>
+          <a href="mailto:servicioalcliente@casapellas.com" class="text-xs text-blue-200/90 hover:text-white transition mt-3 block font-normal">
+            servicioalcliente@casapellas.com
+          </a>
         </div>
       </div>
-      <div class="pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs text-blue-300 font-medium">
-        <p>© 2026 Grupo Casa Pellas · AI Executive Decision Suite · Todos los derechos reservados · Datos elaborados para fines de evaluación técnica</p>
-        <p>Desarrollado con FastAPI, Uvicorn, ApexCharts &amp; Plotly.js</p>
+
+      <div class="pt-6 flex flex-col md:flex-row md:items-center md:justify-between gap-3 text-xs text-blue-300/80 font-normal">
+        <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <a href="#" class="hover:text-white transition">Carreras</a>
+          <span>•</span>
+          <a href="#" class="hover:text-white transition">Responsabilidad Social</a>
+          <span>•</span>
+          <a href="#" class="hover:text-white transition">FAQ</a>
+          <span>•</span>
+          <a href="#" class="hover:text-white transition">Documentos Tributarios</a>
+          <span>•</span>
+          <a href="#" class="hover:text-white transition">Tasa de Cambio</a>
+          <span>•</span>
+          <a href="#" class="hover:text-white transition">Política de Sorteos</a>
+          <span>•</span>
+          <a href="#" class="hover:text-white transition">Privacidad</a>
+        </div>
+        <p class="mt-2 md:mt-0">
+          © 2026 Casa Pellas. Todos los derechos reservados · AI Executive Decision Suite
+        </p>
       </div>
     </div>
   </footer>
+
+  <!-- Botón Flotante WhatsApp Oficial Casa Pellas -->
+  <a href="https://wa.me/50522554444" target="_blank" rel="noopener noreferrer" class="fixed bottom-5 right-5 z-40 flex items-center bg-white rounded-full pl-3.5 pr-2 py-1.5 shadow-2xl border border-slate-200 text-xs text-slate-700 font-medium gap-2.5 hover:shadow-lg transition">
+    <span>Envié su chat en whatsapp.</span>
+    <div class="w-8 h-8 rounded-full bg-[#25D366] flex items-center justify-center text-white shadow-sm flex-shrink-0">
+      <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+        <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/>
+      </svg>
+    </div>
+  </a>
 
   <script src="/static/app.js"></script>
 </body>
