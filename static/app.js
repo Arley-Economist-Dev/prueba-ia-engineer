@@ -229,7 +229,7 @@ function renderCaso1Table(models, totals) {
 }
 
 function renderCaso1ApexBars(models) {
-  // Regla Tufte Data-to-Ink: Ordenar de mayor a menor según Pedido Sugerido
+  // Ordenar de mayor a menor según Pedido Sugerido
   const sorted = [...models].sort(
     (a, b) => b.Pedido_Sugerido_Oct26 - a.Pedido_Sugerido_Oct26
   );
@@ -251,16 +251,16 @@ function renderCaso1ApexBars(models) {
                 name: "Lote Mínimo",
                 value: minLot,
                 strokeWidth: 4,
-                strokeHeight: 12,
-                strokeColor: "#FF7C5C", // Resaltado ámbar/coral para límites críticos
+                strokeHeight: 10,
+                strokeColor: "#FF7C5C",
               },
             ]
           : [],
     };
   });
 
-  const sInv = sorted.map((m) => m.Inv_30Sep);
-  const sTrans = sorted.map((m) => m.Transito_Oct26_Ene27);
+  const sInv = sorted.map((m) => ({ x: m.Modelo, y: m.Inv_30Sep }));
+  const sTrans = sorted.map((m) => ({ x: m.Modelo, y: m.Transito_Oct26_Ene27 }));
 
   const options = {
     chart: {
@@ -280,13 +280,15 @@ function renderCaso1ApexBars(models) {
     plotOptions: {
       bar: {
         horizontal: true,
-        barHeight: "72%",
+        barHeight: "75%",
         borderRadius: 3,
       },
     },
     dataLabels: {
       enabled: true,
-      style: { fontSize: "10px", colors: ["#FFFFFF"], fontFamily: "Inter, sans-serif" },
+      enabledOnSeries: [0],
+      offsetX: 6,
+      style: { fontSize: "10px", colors: ["#FFFFFF"], fontFamily: "Inter, sans-serif", fontWeight: 700 },
       formatter: (val) => (val > 0 ? `${val}` : ""),
     },
     stroke: { show: true, width: 1, colors: ["#1C376C"] },
@@ -311,7 +313,7 @@ function renderCaso1ApexBars(models) {
     },
     grid: {
       borderColor: "rgba(255, 255, 255, 0.08)",
-      xaxis: { lines: { show: false } }, // Cero líneas verticales superfluas
+      xaxis: { lines: { show: false } },
       yaxis: { lines: { show: true } },
     },
     legend: {
@@ -322,20 +324,31 @@ function renderCaso1ApexBars(models) {
     },
     tooltip: {
       theme: "dark",
-      y: { formatter: (val) => `${val} unidades` },
+      shared: true,
+      intersect: false,
+      x: {
+        formatter: function (val, opts) {
+          if (opts && opts.dataPointIndex !== undefined && sorted[opts.dataPointIndex]) {
+            const m = sorted[opts.dataPointIndex];
+            return `${m.Modelo} · Lote Fábrica (Mín/Múlt): ${m.Lote_Min_Mult}`;
+          }
+          return val || "";
+        },
+      },
+      y: {
+        formatter: (val) => (val !== undefined && val !== null ? `${fmtInt(val)} unidades` : ""),
+      },
     },
   };
 
   if (chartC1Bars) {
-    chartC1Bars.updateOptions(options);
-  } else {
-    chartC1Bars = new ApexCharts(document.querySelector("#chart-c1-bars"), options);
-    chartC1Bars.render();
+    chartC1Bars.destroy();
   }
+  chartC1Bars = new ApexCharts(document.querySelector("#chart-c1-bars"), options);
+  chartC1Bars.render();
 }
 
 function renderCaso1ApexDonut(models) {
-  // Regla Tufte Estricta: Cero gráficos de pastel con más de 4 categorías
   const activeModels = [...models]
     .filter((m) => m.Margen_Bruto_Esperado_USD > 0)
     .sort((a, b) => b.Margen_Bruto_Esperado_USD - a.Margen_Bruto_Esperado_USD);
@@ -370,12 +383,12 @@ function renderCaso1ApexDonut(models) {
     theme: { mode: "dark" },
     labels: labels,
     series: series,
-    colors: ["#FFFFFF", "#18489B", "#38BDF8", "#E0A96D"],
+    colors: ["#38BDF8", "#18489B", "#6366F1", "#E0A96D"],
     stroke: { colors: ["#17217D"], width: 2 },
     dataLabels: {
       enabled: true,
       formatter: (val) => `${val.toFixed(1)}%`,
-      style: { fontSize: "11px", fontWeight: "bold", fontFamily: "Inter, sans-serif" },
+      style: { fontSize: "11px", fontWeight: "bold", colors: ["#FFFFFF"], fontFamily: "Inter, sans-serif" },
     },
     plotOptions: {
       pie: {
@@ -406,7 +419,13 @@ function renderCaso1ApexDonut(models) {
     legend: { position: "bottom", labels: { colors: "#FFFFFFB3" }, fontFamily: "Inter, sans-serif" },
     tooltip: {
       theme: "dark",
-      y: { formatter: (val) => fmtUSD(val, 0) },
+      fillSeriesColor: false,
+      y: {
+        formatter: (val) => {
+          const pct = totalMargen > 0 ? ((val / totalMargen) * 100).toFixed(1) : "0.0";
+          return `${fmtUSD(val, 0)} USD (${pct}% del total)`;
+        },
+      },
     },
   };
 
@@ -532,16 +551,31 @@ function renderCaso1TrajectoryChart() {
     },
     tooltip: {
       theme: "dark",
-      y: { formatter: (val) => `${val} unidades` },
+      shared: true,
+      intersect: false,
+      x: {
+        formatter: function (val, opts) {
+          if (opts && opts.dataPointIndex !== undefined && rows[opts.dataPointIndex]) {
+            const r = rows[opts.dataPointIndex];
+            const llegadas = Math.round(r.Llegadas_Uds || 0);
+            return llegadas > 0
+              ? `${r.Etiqueta_Mes} · Arribo: +${fmtInt(llegadas)} uds`
+              : r.Etiqueta_Mes;
+          }
+          return val || "";
+        },
+      },
+      y: {
+        formatter: (val) => (val !== undefined && val !== null ? `${fmtInt(val)} unidades` : ""),
+      },
     },
   };
 
   if (chartC1Trajectory) {
-    chartC1Trajectory.updateOptions(options);
-  } else {
-    chartC1Trajectory = new ApexCharts(document.querySelector("#chart-c1-trajectory"), options);
-    chartC1Trajectory.render();
+    chartC1Trajectory.destroy();
   }
+  chartC1Trajectory = new ApexCharts(document.querySelector("#chart-c1-trajectory"), options);
+  chartC1Trajectory.render();
 }
 
 function renderCaso1MixChart() {
@@ -566,6 +600,7 @@ function renderCaso1MixChart() {
       const found = rows.find((r) => r.Versión === ver && r.Color === colorName);
       return found ? found[valField] : 0;
     });
+    const isLightBar = idx % palette.length === 0 || idx % palette.length === 4;
     return {
       x: versionsUnique,
       y: yVals,
@@ -573,7 +608,16 @@ function renderCaso1MixChart() {
       type: "bar",
       text: yVals.map((v) => (v > 0 ? (modelOrder > 0 ? `${v}` : `${v.toFixed(1)}%`) : "")),
       textposition: "inside",
+      insidetextfont: {
+        color: isLightBar ? "#002D62" : "#FFFFFF",
+        family: "Inter, sans-serif",
+        size: 11,
+      },
       marker: { color: palette[idx % palette.length] },
+      hovertemplate:
+        modelOrder > 0
+          ? `<b>${sel} · %{x}</b><br>Color: <b>${colorName}</b><br>Pedido Sugerido: <b>%{y} unidades</b><extra></extra>`
+          : `<b>${sel} · %{x}</b><br>Color: <b>${colorName}</b><br>Participación Óptima: <b>%{y:.1f}%</b><extra></extra>`,
     };
   });
 
@@ -586,6 +630,11 @@ function renderCaso1MixChart() {
     legend: { orientation: "h", y: 1.15, x: 0 },
     xaxis: { gridcolor: "rgba(255, 255, 255, 0.08)", color: "#FFFFFFB3" },
     yaxis: { gridcolor: "rgba(255, 255, 255, 0.08)", color: "#FFFFFFB3", title: yAxisTitle },
+    hoverlabel: {
+      bgcolor: "#122092",
+      bordercolor: "#38BDF8",
+      font: { color: "#FFFFFF", family: "Inter, sans-serif", size: 12 },
+    },
   };
 
   Plotly.react("chart-c1-mix", traces, layout, {
@@ -755,7 +804,26 @@ function renderCaso2DiagnosticCharts(diag) {
     legend: { show: false },
     tooltip: {
       theme: "dark",
-      y: { formatter: (v) => `${v.toFixed(1)}% de Renovación` },
+      x: {
+        formatter: function (val, opts) {
+          if (opts && opts.dataPointIndex !== undefined && manualCurve[opts.dataPointIndex]) {
+            const r = manualCurve[opts.dataPointIndex];
+            const clean = r.Tramo_Anticipacion.replace(/^\d+\.\s*/, "");
+            return `${clean} · ${fmtInt(r.Polizas)} pólizas manuales`;
+          }
+          return val || "";
+        },
+      },
+      y: {
+        formatter: (v, opts) => {
+          if (v === undefined || v === null) return "";
+          if (opts && opts.dataPointIndex !== undefined && manualCurve[opts.dataPointIndex]) {
+            const lost = manualCurve[opts.dataPointIndex].Comision_Perdida_USD;
+            return `${v.toFixed(2)}% de Renovación (Comisión perdida: ${fmtUSD(lost, 0)})`;
+          }
+          return `${v.toFixed(2)}% de Renovación`;
+        },
+      },
     },
   };
   if (chartC2Anticipation) chartC2Anticipation.destroy();
@@ -813,17 +881,17 @@ function renderCaso2DiagnosticCharts(diag) {
             value: {
               show: true,
               color: "#FF7C5C",
-              fontSize: "20px",
+              fontSize: "18px",
               fontWeight: 800,
               fontFamily: "Inter, sans-serif",
-              formatter: () => `${autoPct.toFixed(1)}%`,
+              formatter: (v) => `${fmtInt(v)} llamadas`,
             },
             total: {
               show: true,
               label: "Llamadas Ineficientes",
               color: "#FFFFFFB3",
               fontFamily: "Inter, sans-serif",
-              formatter: () => `${fmtInt(autoCalls)} llamadas`,
+              formatter: () => `${fmtInt(autoCalls)} (${autoPct.toFixed(1)}%)`,
             },
           },
         },
@@ -832,7 +900,13 @@ function renderCaso2DiagnosticCharts(diag) {
     legend: { position: "bottom", labels: { colors: "#FFFFFFB3" }, fontFamily: "Inter, sans-serif" },
     tooltip: {
       theme: "dark",
-      y: { formatter: (v) => `${fmtInt(v)} llamadas` },
+      fillSeriesColor: false,
+      y: {
+        formatter: (v) => {
+          const pct = totalCalls > 0 ? ((v / totalCalls) * 100).toFixed(1) : "0.0";
+          return `${fmtInt(v)} llamadas (${pct}% del total)`;
+        },
+      },
     },
   };
   if (chartC2Payment) chartC2Payment.destroy();
@@ -930,7 +1004,10 @@ function renderCaso2DiagnosticCharts(diag) {
         title: { text: "Pólizas / Gestor", style: { color: "#FFFFFFB3", fontSize: "10px" } },
         min: 0,
         max: 480,
-        labels: { style: { colors: "#FFFFFFB3", fontSize: "10px" } },
+        labels: {
+          style: { colors: "#FFFFFFB3", fontSize: "10px" },
+          formatter: (v) => `${Math.round(v)}`,
+        },
       },
       {
         opposite: true,
@@ -954,26 +1031,46 @@ function renderCaso2DiagnosticCharts(diag) {
     legend: { position: "top", labels: { colors: "#FFFFFFB3" }, fontFamily: "Inter, sans-serif" },
     tooltip: {
       theme: "dark",
+      shared: true,
+      intersect: false,
       x: {
-        formatter: function (val) {
+        formatter: function (val, opts) {
           const full = {
-            "2025-09": "Sep 2025",
-            "2025-10": "Oct 2025",
-            "2025-11": "Nov 2025",
-            "2025-12": "Dic 2025 (Salida G06/G07)",
-            "2026-01": "Ene 2026",
-            "2026-02": "Feb 2026",
-            "2026-03": "Mar 2026",
-            "2026-04": "Abr 2026",
-            "2026-05": "May 2026",
-            "2026-06": "Jun 2026",
-            "2026-07": "Jul 2026",
-            "2026-08": "Ago 2026",
-            "2026-09": "Sep 2026",
+            "2025-09": "Septiembre 2025 (7 Gestores Activos)",
+            "2025-10": "Octubre 2025 (7 Gestores Activos)",
+            "2025-11": "Noviembre 2025 (7 Gestores Activos)",
+            "2025-12": "Diciembre 2025 · Salida G06 y G07 (5 Gestores)",
+            "2026-01": "Enero 2026 (5 Gestores Activos)",
+            "2026-02": "Febrero 2026 (5 Gestores Activos)",
+            "2026-03": "Marzo 2026 (5 Gestores Activos)",
+            "2026-04": "Abril 2026 (5 Gestores Activos)",
+            "2026-05": "Mayo 2026 (5 Gestores Activos)",
+            "2026-06": "Junio 2026 (5 Gestores Activos)",
+            "2026-07": "Julio 2026 (5 Gestores Activos)",
+            "2026-08": "Agosto 2026 (5 Gestores Activos)",
+            "2026-09": "Septiembre 2026 (5 Gestores Activos)",
           };
-          return full[val] || val;
+          const idx =
+            opts && opts.dataPointIndex !== undefined
+              ? opts.dataPointIndex
+              : typeof val === "number"
+              ? val - 1
+              : -1;
+          const key = idx >= 0 && evol[idx] ? evol[idx].Mes_Str : String(val);
+          return full[key] || key;
         },
       },
+      y: [
+        {
+          formatter: (v) => (v !== undefined && v !== null ? `${v.toFixed(1)} pólizas/gestor` : ""),
+        },
+        {
+          formatter: (v) => (v !== undefined && v !== null ? `${v.toFixed(2)}%` : ""),
+        },
+        {
+          formatter: (v) => (v !== undefined && v !== null ? `${v.toFixed(2)}%` : ""),
+        },
+      ],
     },
   };
   if (chartC2Break) chartC2Break.destroy();
@@ -1096,10 +1193,27 @@ function renderCaso2PrioAndRoi(data) {
 function renderCaso2RoiBarsChart(lanes, sm) {
   // Ordenado de mayor a menor con nombres concisos y escala optimizada
   const items = [
-    { name: "Total Rescatado", value: Math.round(sm.impacto_economico_anual_usd || 0), isTotal: true },
-    { name: "Carril 2: Bot IA (T-25d)", value: Math.round(lanes[1]?.Impacto_Comisiones_Anual_USD || 0) },
-    { name: "Carril 3: Gestores + IA", value: Math.round(lanes[2]?.Impacto_Comisiones_Anual_USD || 0) },
-    { name: "Carril 1: Zero-Touch", value: Math.round(lanes[0]?.Impacto_Comisiones_Anual_USD || 0) },
+    {
+      name: "Total Rescatado",
+      fullName: "Total Rescatado Anual (3 Carriles)",
+      value: Math.round(sm.impacto_economico_anual_usd || 0),
+      isTotal: true,
+    },
+    {
+      name: "Carril 2: Bot IA (T-25d)",
+      fullName: "Carril 2: Bot Omnicanal IA (Contacto T-25 días)",
+      value: Math.round(lanes[1]?.Impacto_Comisiones_Anual_USD || 0),
+    },
+    {
+      name: "Carril 3: Gestores + IA",
+      fullName: "Carril 3: Gestores Humanos + Copiloto IA (Alto Riesgo)",
+      value: Math.round(lanes[2]?.Impacto_Comisiones_Anual_USD || 0),
+    },
+    {
+      name: "Carril 1: Zero-Touch",
+      fullName: "Carril 1: Zero-Touch Digital (Domiciliado / Financiado)",
+      value: Math.round(lanes[0]?.Impacto_Comisiones_Anual_USD || 0),
+    },
   ].sort((a, b) => b.value - a.value);
 
   const categories = items.map((i) => i.name);
@@ -1156,7 +1270,7 @@ function renderCaso2RoiBarsChart(lanes, sm) {
         fontFamily: "Inter, sans-serif",
       },
     },
-    series: [{ name: "Comisiones Rescatadas (USD/año)", data: values }],
+    series: [{ name: "Comisiones Rescatadas", data: values }],
     xaxis: {
       type: "numeric",
       categories: categories,
@@ -1166,6 +1280,7 @@ function renderCaso2RoiBarsChart(lanes, sm) {
       labels: {
         rotate: 0,
         formatter: function (v) {
+          if (typeof v !== "number" || isNaN(v)) return v;
           if (!v || v === 0) return "$0";
           if (v >= 1000000) return `$${(v / 1000000).toFixed(1)}M`;
           if (v >= 1000) return `$${Math.round(v / 1000)}k`;
@@ -1195,7 +1310,18 @@ function renderCaso2RoiBarsChart(lanes, sm) {
     legend: { show: false },
     tooltip: {
       theme: "dark",
-      y: { formatter: (v) => `+${fmtUSD(v, 2)} USD / año` },
+      fillSeriesColor: false,
+      x: {
+        formatter: function (val, opts) {
+          if (opts && opts.dataPointIndex !== undefined && items[opts.dataPointIndex]) {
+            return items[opts.dataPointIndex].fullName;
+          }
+          return String(val || "").replace(/^\$/, "");
+        },
+      },
+      y: {
+        formatter: (v) => `+${fmtUSD(v, 2)} USD / año`,
+      },
     },
   };
 
