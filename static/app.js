@@ -129,7 +129,7 @@ function renderCaso1Dashboard(data) {
     riskTitle.textContent = `RAV4: +${t.rav4_order_qty} uds pedidas`;
     riskSub.textContent = `Sobrestock May-27: ${t.rav4_end_stock_abr27.toFixed(0)} uds (${fmtUSD(t.rav4_obsolescence_exposure_usd, 0)})`;
     riskSub.className = "text-xs text-red-600 mt-1 font-bold";
-    rav4Note.textContent = "⚠️ Desactivado: Se están pidiendo unidades adicionales de generación saliente sin subsidio de fábrica.";
+    rav4Note.textContent = "Atención: Se están pidiendo unidades adicionales de generación saliente sin subsidio de fábrica.";
     rav4Note.className = "text-[11px] text-red-600 font-semibold mt-2";
   }
 
@@ -182,27 +182,27 @@ function renderCaso1Table(models, totals) {
     const isRav4Zero = r.Modelo === "RAV4" && r.Pedido_Sugerido_Oct26 === 0;
     const isStockoutPre = r.Deficit_Oct26_Ene27 > 0;
 
-    let badgeHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-[#004899] border border-blue-200">Lote Óptimo</span>`;
+    let badgeHtml = `<span class="cp-pill cp-pill-blue">Lote Óptimo</span>`;
     if (isRav4Zero) {
-      badgeHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Liquidación Gen. Actual</span>`;
+      badgeHtml = `<span class="cp-pill cp-pill-amber">Liquidación Gen. Actual</span>`;
     } else if (isStockoutPre) {
-      badgeHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Reposición Urgente</span>`;
+      badgeHtml = `<span class="cp-pill cp-pill-rose">Reposición Urgente</span>`;
     }
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td class="font-bold text-[#002D62]">${r.Modelo}</td>
       <td class="text-center text-slate-600 font-mono font-semibold">${r.Lote_Min_Mult}</td>
-      <td class="text-right text-slate-700">${fmtInt(r.Inv_30Sep)}</td>
-      <td class="text-right font-medium text-[#004899]">${fmtInt(r.Transito_Oct26_Ene27)}</td>
-      <td class="text-right text-slate-700">${r.Demanda_Oct26_Ene27_4M.toFixed(1)}</td>
-      <td class="text-right font-semibold ${r.Inv_Proyectado_31Ene27 === 0 ? 'text-red-600 font-bold' : 'text-slate-800'}">${r.Inv_Proyectado_31Ene27.toFixed(1)}</td>
-      <td class="text-right text-slate-700">${r.Demanda_Feb27_Abr27_3M.toFixed(1)}</td>
-      <td class="text-right text-slate-600">${r.Stock_Seguridad_Objetivo.toFixed(1)}</td>
-      <td class="text-right text-slate-600">${r.Necesidad_Neta_Feb_Abr.toFixed(1)}</td>
-      <td class="text-right font-extrabold text-sm ${r.Pedido_Sugerido_Oct26 === 0 ? 'text-amber-600' : 'text-[#004899]'}">${fmtInt(r.Pedido_Sugerido_Oct26)}</td>
-      <td class="text-right font-semibold text-slate-900">${fmtUSD(r.Capital_Comprometido_USD, 0)}</td>
-      <td class="text-right font-bold text-emerald-600">${fmtUSD(r.Margen_Bruto_Esperado_USD, 0)}</td>
+      <td class="text-right text-slate-700 tabular-nums">${fmtInt(r.Inv_30Sep)}</td>
+      <td class="text-right font-medium text-[#004899] tabular-nums">${fmtInt(r.Transito_Oct26_Ene27)}</td>
+      <td class="text-right text-slate-700 tabular-nums">${r.Demanda_Oct26_Ene27_4M.toFixed(1)}</td>
+      <td class="text-right font-semibold tabular-nums ${r.Inv_Proyectado_31Ene27 === 0 ? 'text-red-600 font-bold' : 'text-slate-800'}">${r.Inv_Proyectado_31Ene27.toFixed(1)}</td>
+      <td class="text-right text-slate-700 tabular-nums">${r.Demanda_Feb27_Abr27_3M.toFixed(1)}</td>
+      <td class="text-right text-slate-600 tabular-nums">${r.Stock_Seguridad_Objetivo.toFixed(1)}</td>
+      <td class="text-right text-slate-600 tabular-nums">${r.Necesidad_Neta_Feb_Abr.toFixed(1)}</td>
+      <td class="text-right font-extrabold text-sm tabular-nums ${r.Pedido_Sugerido_Oct26 === 0 ? 'text-amber-600' : 'text-[#004899]'}">${fmtInt(r.Pedido_Sugerido_Oct26)}</td>
+      <td class="text-right font-semibold text-slate-900 tabular-nums">${fmtUSD(r.Capital_Comprometido_USD, 0)}</td>
+      <td class="text-right font-bold text-emerald-600 tabular-nums">${fmtUSD(r.Margen_Bruto_Esperado_USD, 0)}</td>
       <td class="text-center">${badgeHtml}</td>
     `;
     tbody.appendChild(tr);
@@ -767,7 +767,7 @@ function renderCaso2PrioAndRoi(data) {
     tr.innerHTML = `
       <td class="text-center font-mono text-xs text-slate-500">#${p.ranking}</td>
       <td class="font-bold text-[#004899] underline decoration-blue-300">${p.poliza}</td>
-      <td class="text-center"><span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-[#004899] border border-blue-200">${p.gestor}</span></td>
+      <td class="text-center"><span class="cp-pill cp-pill-blue">${p.gestor}</span></td>
       <td>
         <div class="font-semibold text-slate-800">${p.cliente_id}</div>
         <div class="text-[11px] text-slate-500 font-medium">${p.telefono}</div>
@@ -778,16 +778,19 @@ function renderCaso2PrioAndRoi(data) {
       </td>
       <td class="text-xs text-slate-700">${p.aseguradora}</td>
       <td class="text-center text-xs font-mono text-slate-600 font-medium">${p.fecha_vencimiento}</td>
-      <td class="text-right text-xs text-slate-600">${fmtUSD(p.prima_anterior_usd, 2)}</td>
-      <td class="text-right font-semibold text-slate-900">${fmtUSD(p.prima_renovacion_usd, 2)}</td>
-      <td class="text-right text-xs ${changeColor}">${p.cambio_prima_pct >= 0 ? "+" : ""}${p.cambio_prima_pct.toFixed(1)}%</td>
+      <td class="text-right text-xs text-slate-600 tabular-nums">${fmtUSD(p.prima_anterior_usd, 2)}</td>
+      <td class="text-right font-semibold text-slate-900 tabular-nums">${fmtUSD(p.prima_renovacion_usd, 2)}</td>
+      <td class="text-right text-xs tabular-nums ${changeColor}">${p.cambio_prima_pct >= 0 ? "+" : ""}${p.cambio_prima_pct.toFixed(1)}%</td>
       <td class="text-right">
-        <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-200">${p.p_fuga_pct.toFixed(1)}%</span>
+        <span class="cp-pill cp-pill-rose tabular-nums">${p.p_fuga_pct.toFixed(1)}%</span>
       </td>
-      <td class="text-right font-extrabold text-[#002D62] text-sm">${fmtUSD(p.valor_en_riesgo_usd, 2)}</td>
+      <td class="text-right font-extrabold text-[#002D62] text-sm tabular-nums">${fmtUSD(p.valor_en_riesgo_usd, 2)}</td>
       <td class="text-center">
-        <button onclick="event.stopPropagation(); openCopilotModal('${p.poliza}')" class="cp-btn-primary px-2.5 py-1 text-xs font-semibold">
-          🤖 Copiloto IA
+        <button onclick="event.stopPropagation(); openCopilotModal('${p.poliza}')" class="cp-btn-primary px-2.5 py-1 text-xs">
+          <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>
+          </svg>
+          <span>Copiloto IA</span>
         </button>
       </td>
     `;
@@ -904,15 +907,15 @@ async function openCopilotModal(polizaId) {
     data.cotizaciones.forEach((q, idx) => {
       const tr = document.createElement("tr");
       if (idx === 2) {
-        tr.className = "bg-emerald-50 font-semibold border-l-4 border-l-emerald-500";
+        tr.className = "bg-emerald-50/70 font-semibold text-emerald-950";
       }
       tr.innerHTML = `
         <td class="text-slate-800">${q["Opción"]}</td>
         <td class="text-[#004899] font-medium">${q["Aseguradora"]}</td>
-        <td class="text-right font-bold text-slate-900">${fmtUSD(q["Prima Anual (USD)"], 2)}</td>
-        <td class="text-right text-slate-600">${q["Variación vs Anterior"]}</td>
-        <td class="text-right font-bold text-emerald-600">${fmtUSD(q["Ahorro vs Cotización Base (USD)"], 2)}</td>
-        <td class="text-right text-slate-900 font-semibold">${fmtUSD(q["Comisión Capesa (USD)"], 2)}</td>
+        <td class="text-right font-bold text-slate-900 tabular-nums">${fmtUSD(q["Prima Anual (USD)"], 2)}</td>
+        <td class="text-right text-slate-600 tabular-nums">${q["Variación vs Anterior"]}</td>
+        <td class="text-right font-bold text-emerald-600 tabular-nums">${fmtUSD(q["Ahorro vs Cotización Base (USD)"], 2)}</td>
+        <td class="text-right text-slate-900 font-semibold tabular-nums">${fmtUSD(q["Comisión Capesa (USD)"], 2)}</td>
       `;
       qBody.appendChild(tr);
     });
@@ -928,10 +931,10 @@ function closeCopilotModal() {
 function copyCopilotScript() {
   const txt = document.getElementById("cop-script-text").innerText;
   navigator.clipboard.writeText(txt);
-  const btn = document.getElementById("btn-copy-script");
-  btn.textContent = "✅ ¡Copiado!";
+  const btnText = document.getElementById("btn-copy-text");
+  if (btnText) btnText.textContent = "¡Copiado!";
   setTimeout(() => {
-    btn.textContent = "📋 Copiar Guion";
+    if (btnText) btnText.textContent = "Copiar Guion";
   }, 1800);
 }
 
