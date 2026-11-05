@@ -1,13 +1,13 @@
 /**
  * Cliente SPA de Alto Rendimiento — Casa Pellas · AI Executive Decision Suite
- * Renderiza en cliente (60fps) con ApexCharts y Plotly.js consumiendo FastAPI (/api/*).
+ * Renderiza en cliente (60fps) con ApexCharts y Plotly.js en paleta corporativa oficial (Light Theme).
  */
 
 let caso1State = null;
 let caso2DiagState = null;
 let caso2PrioState = null;
 
-// Instancias de ApexCharts para actualización fluida
+// Instancias de ApexCharts
 let chartC1Bars = null;
 let chartC1Donut = null;
 let chartC2Anticipation = null;
@@ -107,27 +107,30 @@ function renderCaso1Dashboard(data) {
   document.getElementById("kpi-c1-margen-pct").textContent = `${(t.margen_bruto_ponderado_pct * 100).toFixed(2)}% s/ Venta`;
   document.getElementById("kpi-c1-ingreso").textContent = `Ingreso proyectado: ${fmtUSD(t.total_ingreso_esperado_usd, 0)} USD`;
 
+  const riskCard = document.getElementById("kpi-c1-risk-card");
   const riskBadge = document.getElementById("kpi-c1-risk-badge");
   const riskTitle = document.getElementById("kpi-c1-risk-title");
   const riskSub = document.getElementById("kpi-c1-risk-sub");
   const rav4Note = document.getElementById("c1-rav4-status-note");
 
   if (rav4Active) {
+    riskCard.className = "cp-kpi-card p-5";
     riskBadge.textContent = "CONTROLADO";
-    riskBadge.className = "px-2 py-0.5 text-[11px] font-bold rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30";
+    riskBadge.className = "px-2 py-0.5 text-[11px] font-bold rounded bg-emerald-50 text-emerald-700 border border-emerald-200";
     riskTitle.textContent = "RAV4: Pedido 0 uds";
     riskSub.textContent = `${t.rav4_unidades_a_liquidar_oct_abr} uds actuales se liquidan a 0 antes de May-2027`;
-    riskSub.className = "text-xs text-emerald-300 mt-1.5";
+    riskSub.className = "text-xs text-emerald-700 mt-1 font-semibold";
     rav4Note.textContent = "Activo: 9 patio + 47 tránsito (44 pedido Jul-26) = 56 uds cubren Oct26–Abr27 sin pedir más unidades.";
-    rav4Note.className = "text-[11px] text-emerald-300 mt-2";
+    rav4Note.className = "text-[11px] text-emerald-700 font-medium mt-2";
   } else {
-    riskBadge.textContent = "ALERTA ALTA";
-    riskBadge.className = "px-2 py-0.5 text-[11px] font-bold rounded bg-rose-500/30 text-rose-200 border border-rose-400/40";
+    riskCard.className = "cp-kpi-card p-5 kpi-accent-red";
+    riskBadge.textContent = "ALERTA CRÍTICA";
+    riskBadge.className = "px-2 py-0.5 text-[11px] font-bold rounded bg-red-50 text-red-700 border border-red-200";
     riskTitle.textContent = `RAV4: +${t.rav4_order_qty} uds pedidas`;
     riskSub.textContent = `Sobrestock May-27: ${t.rav4_end_stock_abr27.toFixed(0)} uds (${fmtUSD(t.rav4_obsolescence_exposure_usd, 0)})`;
-    riskSub.className = "text-xs text-rose-300 mt-1.5";
+    riskSub.className = "text-xs text-red-600 mt-1 font-bold";
     rav4Note.textContent = "⚠️ Desactivado: Se están pidiendo unidades adicionales de generación saliente sin subsidio de fábrica.";
-    rav4Note.className = "text-[11px] text-rose-300 mt-2";
+    rav4Note.className = "text-[11px] text-red-600 font-semibold mt-2";
   }
 
   // 2. Poblar Selectores de Modelo si aún no están poblados
@@ -179,27 +182,27 @@ function renderCaso1Table(models, totals) {
     const isRav4Zero = r.Modelo === "RAV4" && r.Pedido_Sugerido_Oct26 === 0;
     const isStockoutPre = r.Deficit_Oct26_Ene27 > 0;
 
-    let badgeHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-blue-500/20 text-blue-200 border border-blue-400/30">Lote Óptimo</span>`;
+    let badgeHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-blue-50 text-[#004899] border border-blue-200">Lote Óptimo</span>`;
     if (isRav4Zero) {
-      badgeHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-amber-500/20 text-amber-300 border border-amber-400/40">Liquidación Gen. Actual</span>`;
+      badgeHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Liquidación Gen. Actual</span>`;
     } else if (isStockoutPre) {
-      badgeHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-semibold bg-rose-500/20 text-rose-200 border border-rose-400/30">Reposición Urgente</span>`;
+      badgeHtml = `<span class="px-2 py-0.5 rounded text-[11px] font-bold bg-red-50 text-red-700 border border-red-200">Reposición Urgente</span>`;
     }
 
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td class="font-bold text-white">${r.Modelo}</td>
-      <td class="text-center text-blue-200 font-mono">${r.Lote_Min_Mult}</td>
-      <td class="text-right">${fmtInt(r.Inv_30Sep)}</td>
-      <td class="text-right text-sky-300">${fmtInt(r.Transito_Oct26_Ene27)}</td>
-      <td class="text-right">${r.Demanda_Oct26_Ene27_4M.toFixed(1)}</td>
-      <td class="text-right font-semibold ${r.Inv_Proyectado_31Ene27 === 0 ? 'text-rose-300' : 'text-white'}">${r.Inv_Proyectado_31Ene27.toFixed(1)}</td>
-      <td class="text-right">${r.Demanda_Feb27_Abr27_3M.toFixed(1)}</td>
-      <td class="text-right text-blue-200">${r.Stock_Seguridad_Objetivo.toFixed(1)}</td>
-      <td class="text-right text-blue-200">${r.Necesidad_Neta_Feb_Abr.toFixed(1)}</td>
-      <td class="text-right font-extrabold text-base ${r.Pedido_Sugerido_Oct26 === 0 ? 'text-amber-300' : 'text-emerald-300'}">${fmtInt(r.Pedido_Sugerido_Oct26)}</td>
-      <td class="text-right font-medium text-white">${fmtUSD(r.Capital_Comprometido_USD, 0)}</td>
-      <td class="text-right font-semibold text-emerald-300">${fmtUSD(r.Margen_Bruto_Esperado_USD, 0)}</td>
+      <td class="font-bold text-[#002D62]">${r.Modelo}</td>
+      <td class="text-center text-slate-600 font-mono font-semibold">${r.Lote_Min_Mult}</td>
+      <td class="text-right text-slate-700">${fmtInt(r.Inv_30Sep)}</td>
+      <td class="text-right font-medium text-[#004899]">${fmtInt(r.Transito_Oct26_Ene27)}</td>
+      <td class="text-right text-slate-700">${r.Demanda_Oct26_Ene27_4M.toFixed(1)}</td>
+      <td class="text-right font-semibold ${r.Inv_Proyectado_31Ene27 === 0 ? 'text-red-600 font-bold' : 'text-slate-800'}">${r.Inv_Proyectado_31Ene27.toFixed(1)}</td>
+      <td class="text-right text-slate-700">${r.Demanda_Feb27_Abr27_3M.toFixed(1)}</td>
+      <td class="text-right text-slate-600">${r.Stock_Seguridad_Objetivo.toFixed(1)}</td>
+      <td class="text-right text-slate-600">${r.Necesidad_Neta_Feb_Abr.toFixed(1)}</td>
+      <td class="text-right font-extrabold text-sm ${r.Pedido_Sugerido_Oct26 === 0 ? 'text-amber-600' : 'text-[#004899]'}">${fmtInt(r.Pedido_Sugerido_Oct26)}</td>
+      <td class="text-right font-semibold text-slate-900">${fmtUSD(r.Capital_Comprometido_USD, 0)}</td>
+      <td class="text-right font-bold text-emerald-600">${fmtUSD(r.Margen_Bruto_Esperado_USD, 0)}</td>
       <td class="text-center">${badgeHtml}</td>
     `;
     tbody.appendChild(tr);
@@ -210,16 +213,16 @@ function renderCaso1Table(models, totals) {
       <td class="text-left py-3 px-3">TOTAL CONSOLIDADO (11 MODELOS)</td>
       <td class="text-center py-3 px-3">—</td>
       <td class="text-right py-3 px-3">${fmtInt(totals.total_inv_30sep)}</td>
-      <td class="text-right py-3 px-3 text-sky-300">${fmtInt(totals.total_transito_oct_ene)}</td>
+      <td class="text-right py-3 px-3 text-[#004899]">${fmtInt(totals.total_transito_oct_ene)}</td>
       <td class="text-right py-3 px-3">${sumDem4M.toFixed(1)}</td>
       <td class="text-right py-3 px-3">${sumProyEne.toFixed(1)}</td>
       <td class="text-right py-3 px-3">${sumDem3M.toFixed(1)}</td>
       <td class="text-right py-3 px-3">${sumSS.toFixed(1)}</td>
       <td class="text-right py-3 px-3">${sumBruto.toFixed(1)}</td>
-      <td class="text-right py-3 px-3 text-emerald-300 text-base">${fmtInt(totals.total_unidades_pedidas)} uds</td>
+      <td class="text-right py-3 px-3 text-[#004899] text-base">${fmtInt(totals.total_unidades_pedidas)} uds</td>
       <td class="text-right py-3 px-3">${fmtUSD(totals.total_capital_comprometido_usd, 0)}</td>
-      <td class="text-right py-3 px-3 text-emerald-300">${fmtUSD(totals.total_margen_bruto_esperado_usd, 0)}</td>
-      <td class="text-center py-3 px-3 text-xs text-blue-200">Plan Piso: ${fmtUSD(totals.total_costo_plan_piso_mensual_usd, 0)}/m</td>
+      <td class="text-right py-3 px-3 text-emerald-600">${fmtUSD(totals.total_margen_bruto_esperado_usd, 0)}</td>
+      <td class="text-center py-3 px-3 text-xs text-slate-600">Plan Piso: ${fmtUSD(totals.total_costo_plan_piso_mensual_usd, 0)}/m</td>
     </tr>
   `;
 }
@@ -236,13 +239,14 @@ function renderCaso1ApexBars(models) {
       height: 375,
       toolbar: { show: false },
       background: "transparent",
-      foreColor: "#e2e8f0",
-      animations: { enabled: true, speed: 350 },
+      foreColor: "#1E293B",
+      animations: { enabled: true, speed: 300 },
     },
+    theme: { mode: "light" },
     plotOptions: {
       bar: {
         horizontal: true,
-        barHeight: "75%",
+        barHeight: "72%",
         borderRadius: 4,
       },
     },
@@ -250,8 +254,8 @@ function renderCaso1ApexBars(models) {
       enabled: true,
       style: { fontSize: "10px", colors: ["#ffffff"] },
     },
-    stroke: { show: true, width: 1, colors: ["transparent"] },
-    colors: ["#10b981", "#3b82f6", "#60a5fa"],
+    stroke: { show: true, width: 1, colors: ["#ffffff"] },
+    colors: ["#004899", "#64748B", "#0284C7"],
     series: [
       { name: "Pedido Recomendado Oct-26", data: sPedido },
       { name: "Inventario Actual (30/Sep)", data: sInv },
@@ -259,15 +263,15 @@ function renderCaso1ApexBars(models) {
     ],
     xaxis: {
       categories: categories,
-      labels: { style: { colors: "#cbd5e1", fontSize: "11px" } },
+      labels: { style: { colors: "#475569", fontSize: "11px", fontWeight: 500 } },
     },
     yaxis: {
-      labels: { style: { colors: "#ffffff", fontSize: "11px", fontWeight: 600 } },
+      labels: { style: { colors: "#002D62", fontSize: "11px", fontWeight: 700 } },
     },
-    grid: { borderColor: "#1C376C", strokeDashArray: 3 },
-    legend: { position: "top", horizontalAlign: "left", labels: { colors: "#ffffff" } },
+    grid: { borderColor: "#E2E8F0", strokeDashArray: 3 },
+    legend: { position: "top", horizontalAlign: "left", labels: { colors: "#1E293B" } },
     tooltip: {
-      theme: "dark",
+      theme: "light",
       y: { formatter: (val) => `${val} unidades` },
     },
   };
@@ -290,23 +294,24 @@ function renderCaso1ApexDonut(models) {
       type: "donut",
       height: 375,
       background: "transparent",
-      foreColor: "#ffffff",
+      foreColor: "#1E293B",
     },
+    theme: { mode: "light" },
     labels: labels,
     series: series,
     colors: [
-      "#2563eb",
-      "#10b981",
-      "#f59e0b",
-      "#06b6d4",
-      "#8b5cf6",
-      "#ec4899",
-      "#3b82f6",
-      "#14b8a6",
-      "#f97316",
-      "#6366f1",
+      "#004899",
+      "#002D62",
+      "#D32F2F",
+      "#0284C7",
+      "#10B981",
+      "#F59E0B",
+      "#8B5CF6",
+      "#EC4899",
+      "#0D9488",
+      "#6366F1",
     ],
-    stroke: { colors: ["#122092"], width: 2 },
+    stroke: { colors: ["#FFFFFF"], width: 2 },
     dataLabels: {
       enabled: true,
       formatter: (val) => `${val.toFixed(1)}%`,
@@ -318,10 +323,10 @@ function renderCaso1ApexDonut(models) {
           size: "62%",
           labels: {
             show: true,
-            name: { show: true, color: "#93c5fd" },
+            name: { show: true, color: "#64748B", fontSize: "13px" },
             value: {
               show: true,
-              color: "#ffffff",
+              color: "#002D62",
               fontSize: "18px",
               fontWeight: 800,
               formatter: (v) => fmtUSD(v, 0),
@@ -329,7 +334,7 @@ function renderCaso1ApexDonut(models) {
             total: {
               show: true,
               label: "Margen Total",
-              color: "#93c5fd",
+              color: "#64748B",
               formatter: (w) => {
                 const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
                 return fmtUSD(total, 0);
@@ -339,9 +344,9 @@ function renderCaso1ApexDonut(models) {
         },
       },
     },
-    legend: { position: "bottom", labels: { colors: "#e2e8f0" } },
+    legend: { position: "bottom", labels: { colors: "#334155" } },
     tooltip: {
-      theme: "dark",
+      theme: "light",
       y: { formatter: (val) => fmtUSD(val, 0) },
     },
   };
@@ -391,7 +396,7 @@ function renderCaso1TrajectoryChart() {
       y: yArr,
       type: "bar",
       name: "Llegadas (Tránsito / Pedido Oct)",
-      marker: { color: "rgba(96, 165, 250, 0.45)" },
+      marker: { color: "rgba(0, 72, 153, 0.25)" },
     },
     {
       x: xLabels,
@@ -401,9 +406,9 @@ function renderCaso1TrajectoryChart() {
       name: "Inventario Proy. al Cierre (uds)",
       text: yInv.map((v) => `${Math.round(v)}`),
       textposition: "top center",
-      textfont: { color: "#ffffff", size: 11 },
-      line: { color: "#34d399", width: 3.5 },
-      marker: { size: 8, color: "#10b981" },
+      textfont: { color: "#002D62", size: 11, weight: 700 },
+      line: { color: "#004899", width: 3.5 },
+      marker: { size: 8, color: "#002D62" },
     },
     {
       x: xLabels,
@@ -411,19 +416,19 @@ function renderCaso1TrajectoryChart() {
       type: "scatter",
       mode: "lines+markers",
       name: "Demanda Mensual Planificada",
-      line: { color: "#f87171", width: 2.5, dash: "dash" },
-      marker: { size: 7, color: "#ef4444" },
+      line: { color: "#D32F2F", width: 2.5, dash: "dash" },
+      marker: { size: 7, color: "#D32F2F" },
     },
   ];
 
   const layout = {
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
-    font: { color: "#e2e8f0", family: "Inter, sans-serif", size: 11 },
-    margin: { l: 45, r: 20, t: 30, b: 60 },
-    legend: { orientation: "h", y: 1.14, x: 0 },
-    xaxis: { gridcolor: "#1C376C", tickangle: -20 },
-    yaxis: { gridcolor: "#1C376C", title: "Unidades" },
+    font: { color: "#334155", family: "Inter, sans-serif", size: 11 },
+    margin: { l: 45, r: 20, t: 25, b: 60 },
+    legend: { orientation: "h", y: 1.15, x: 0 },
+    xaxis: { gridcolor: "#E2E8F0", tickangle: -20 },
+    yaxis: { gridcolor: "#E2E8F0", title: "Unidades" },
     barmode: "overlay",
   };
 
@@ -443,13 +448,13 @@ function renderCaso1MixChart() {
   const valField = modelOrder > 0 ? "Unidades_Sugeridas" : "Share_Optimo_Pct";
   const yAxisTitle =
     modelOrder > 0
-      ? `Unidades a Pedir (Total: ${modelOrder} uds)`
+      ? `Unidades a Pedir (${modelOrder} uds)`
       : "Participación Histórica Óptima (%)";
 
   const colorsUnique = [...new Set(rows.map((r) => r.Color))];
   const versionsUnique = [...new Set(rows.map((r) => r.Versión))];
 
-  const palette = ["#3b82f6", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6", "#06b6d4"];
+  const palette = ["#004899", "#D32F2F", "#0284C7", "#10B981", "#64748B", "#F59E0B"];
   const traces = colorsUnique.map((colorName, idx) => {
     const yVals = versionsUnique.map((ver) => {
       const found = rows.find((r) => r.Versión === ver && r.Color === colorName);
@@ -470,11 +475,11 @@ function renderCaso1MixChart() {
     barmode: "stack",
     paper_bgcolor: "rgba(0,0,0,0)",
     plot_bgcolor: "rgba(0,0,0,0)",
-    font: { color: "#e2e8f0", family: "Inter, sans-serif", size: 11 },
-    margin: { l: 45, r: 20, t: 30, b: 55 },
-    legend: { orientation: "h", y: 1.14, x: 0 },
-    xaxis: { gridcolor: "#1C376C" },
-    yaxis: { gridcolor: "#1C376C", title: yAxisTitle },
+    font: { color: "#334155", family: "Inter, sans-serif", size: 11 },
+    margin: { l: 45, r: 20, t: 25, b: 55 },
+    legend: { orientation: "h", y: 1.15, x: 0 },
+    xaxis: { gridcolor: "#E2E8F0" },
+    yaxis: { gridcolor: "#E2E8F0", title: yAxisTitle },
   };
 
   Plotly.react("chart-c1-mix", traces, layout, {
@@ -516,22 +521,23 @@ function renderCaso2DiagnosticCharts(diag) {
       height: 300,
       toolbar: { show: false },
       background: "transparent",
-      foreColor: "#e2e8f0",
+      foreColor: "#1E293B",
     },
+    theme: { mode: "light" },
     plotOptions: {
       bar: {
-        borderRadius: 5,
-        columnWidth: "62%",
+        borderRadius: 4,
+        columnWidth: "60%",
         distributed: true,
         dataLabels: { position: "top" },
       },
     },
-    colors: ["#ef4444", "#f97316", "#f59e0b", "#eab308", "#3b82f6", "#10b981"],
+    colors: ["#D32F2F", "#EA580C", "#F59E0B", "#0284C7", "#004899", "#10B981"],
     dataLabels: {
       enabled: true,
       formatter: (v) => `${v.toFixed(1)}%`,
       offsetY: -18,
-      style: { fontSize: "10px", colors: ["#ffffff"] },
+      style: { fontSize: "10px", colors: ["#0F172A"], fontWeight: "bold" },
     },
     series: [
       {
@@ -544,17 +550,17 @@ function renderCaso2DiagnosticCharts(diag) {
         r.Tramo_Anticipacion.replace(/^\d+\.\s*/, "")
       ),
       labels: {
-        style: { colors: "#cbd5e1", fontSize: "10px" },
+        style: { colors: "#475569", fontSize: "10px" },
         rotate: -25,
       },
     },
     yaxis: {
       max: 85,
-      title: { text: "% Renovación", style: { color: "#93c5fd" } },
+      title: { text: "% Renovación", style: { color: "#002D62" } },
     },
-    grid: { borderColor: "#1C376C", strokeDashArray: 3 },
+    grid: { borderColor: "#E2E8F0", strokeDashArray: 3 },
     legend: { show: false },
-    tooltip: { theme: "dark" },
+    tooltip: { theme: "light" },
   };
   if (chartC2Anticipation) chartC2Anticipation.destroy();
   chartC2Anticipation = new ApexCharts(
@@ -571,8 +577,9 @@ function renderCaso2DiagnosticCharts(diag) {
       type: "line",
       toolbar: { show: false },
       background: "transparent",
-      foreColor: "#e2e8f0",
+      foreColor: "#1E293B",
     },
+    theme: { mode: "light" },
     series: [
       {
         name: "Llamadas en Bitácora",
@@ -585,8 +592,8 @@ function renderCaso2DiagnosticCharts(diag) {
         data: pay.map((r) => r.Tasa_Renovacion_Raw_Pct),
       },
     ],
-    colors: ["#3b82f6", "#10b981"],
-    stroke: { width: [0, 3.5] },
+    colors: ["#004899", "#10B981"],
+    stroke: { width: [0, 3] },
     dataLabels: {
       enabled: true,
       enabledOnSeries: [1],
@@ -595,20 +602,20 @@ function renderCaso2DiagnosticCharts(diag) {
     labels: pay.map((r) => r["Forma de pago"]),
     yaxis: [
       {
-        title: { text: "Llamadas", style: { color: "#93c5fd" } },
+        title: { text: "Llamadas", style: { color: "#002D62" } },
         labels: { formatter: (v) => fmtInt(Math.round(v)) },
       },
       {
         opposite: true,
         max: 105,
         min: 0,
-        title: { text: "Renovación (%)", style: { color: "#34d399" } },
+        title: { text: "Renovación (%)", style: { color: "#059669" } },
         labels: { formatter: (v) => `${v.toFixed(0)}%` },
       },
     ],
-    grid: { borderColor: "#1C376C", strokeDashArray: 3 },
-    legend: { position: "top", labels: { colors: "#ffffff" } },
-    tooltip: { theme: "dark" },
+    grid: { borderColor: "#E2E8F0", strokeDashArray: 3 },
+    legend: { position: "top", labels: { colors: "#1E293B" } },
+    tooltip: { theme: "light" },
   };
   if (chartC2Payment) chartC2Payment.destroy();
   chartC2Payment = new ApexCharts(
@@ -625,8 +632,9 @@ function renderCaso2DiagnosticCharts(diag) {
       type: "line",
       toolbar: { show: false },
       background: "transparent",
-      foreColor: "#e2e8f0",
+      foreColor: "#1E293B",
     },
+    theme: { mode: "light" },
     series: [
       {
         name: "Pólizas / Gestor / Mes",
@@ -644,21 +652,21 @@ function renderCaso2DiagnosticCharts(diag) {
         data: evol.map((r) => r.Pct_En_Meta_20d),
       },
     ],
-    colors: ["#f97316", "#38bdf8", "#10b981"],
+    colors: ["#EA580C", "#004899", "#10B981"],
     stroke: { width: [0, 3, 2.5], dashArray: [0, 0, 4] },
     labels: evol.map((r) => r.Mes_Str),
     xaxis: {
-      labels: { rotate: -35, style: { fontSize: "10px", colors: "#cbd5e1" } },
+      labels: { rotate: -35, style: { fontSize: "10px", colors: "#475569" } },
     },
     yaxis: [
       {
-        title: { text: "Pólizas / Gestor", style: { color: "#fdba74" } },
+        title: { text: "Pólizas / Gestor", style: { color: "#C2410C" } },
         min: 0,
         max: 480,
       },
       {
         opposite: true,
-        title: { text: "Porcentaje (%)", style: { color: "#38bdf8" } },
+        title: { text: "Porcentaje (%)", style: { color: "#004899" } },
         min: 0,
         max: 75,
       },
@@ -669,9 +677,9 @@ function renderCaso2DiagnosticCharts(diag) {
         max: 75,
       },
     ],
-    grid: { borderColor: "#1C376C", strokeDashArray: 3 },
-    legend: { position: "top", labels: { colors: "#ffffff" } },
-    tooltip: { theme: "dark" },
+    grid: { borderColor: "#E2E8F0", strokeDashArray: 3 },
+    legend: { position: "top", labels: { colors: "#1E293B" } },
+    tooltip: { theme: "light" },
   };
   if (chartC2Break) chartC2Break.destroy();
   chartC2Break = new ApexCharts(
@@ -733,7 +741,7 @@ function renderCaso2PrioAndRoi(data) {
     document.getElementById("lane3-roi-badge").textContent = `+${fmtUSD(lanes[2].Impacto_Comisiones_Anual_USD, 0)} USD/año`;
   }
 
-  // Renderizar Gráfico de Barras de Impacto Financiero ROI
+  // Renderizar Gráfico de Barras ROI
   renderCaso2RoiBarsChart(lanes, sm);
 
   // Renderizar Tabla de Bandeja Priorizada
@@ -746,39 +754,39 @@ function renderCaso2PrioAndRoi(data) {
 
   data.policies.forEach((p) => {
     const tr = document.createElement("tr");
-    tr.className = "cursor-pointer";
+    tr.className = "cursor-pointer hover:bg-slate-50 transition";
     tr.onclick = () => openCopilotModal(p.poliza);
 
     const changeColor =
       p.cambio_prima_pct >= 10
-        ? "text-rose-300 font-bold"
+        ? "text-red-600 font-bold"
         : p.cambio_prima_pct > 0
-        ? "text-amber-300"
-        : "text-emerald-300";
+        ? "text-amber-600 font-semibold"
+        : "text-emerald-600 font-medium";
 
     tr.innerHTML = `
-      <td class="text-center font-mono text-xs text-blue-200">#${p.ranking}</td>
-      <td class="font-bold text-white underline decoration-blue-400/50">${p.poliza}</td>
-      <td class="text-center"><span class="px-2 py-0.5 rounded text-xs font-bold bg-[#18489B] text-white">${p.gestor}</span></td>
+      <td class="text-center font-mono text-xs text-slate-500">#${p.ranking}</td>
+      <td class="font-bold text-[#004899] underline decoration-blue-300">${p.poliza}</td>
+      <td class="text-center"><span class="px-2 py-0.5 rounded text-xs font-bold bg-blue-50 text-[#004899] border border-blue-200">${p.gestor}</span></td>
       <td>
-        <div class="font-medium text-white">${p.cliente_id}</div>
-        <div class="text-[11px] text-blue-300">${p.telefono}</div>
+        <div class="font-semibold text-slate-800">${p.cliente_id}</div>
+        <div class="text-[11px] text-slate-500 font-medium">${p.telefono}</div>
       </td>
       <td>
-        <div class="font-medium text-white">${p.ramo}</div>
-        <div class="text-[11px] text-blue-300">${p.segmento}</div>
+        <div class="font-medium text-slate-800">${p.ramo}</div>
+        <div class="text-[11px] text-slate-500 font-medium">${p.segmento}</div>
       </td>
-      <td class="text-xs text-blue-100">${p.aseguradora}</td>
-      <td class="text-center text-xs font-mono text-blue-200">${p.fecha_vencimiento}</td>
-      <td class="text-right text-xs text-blue-200">${fmtUSD(p.prima_anterior_usd, 2)}</td>
-      <td class="text-right font-semibold text-white">${fmtUSD(p.prima_renovacion_usd, 2)}</td>
+      <td class="text-xs text-slate-700">${p.aseguradora}</td>
+      <td class="text-center text-xs font-mono text-slate-600 font-medium">${p.fecha_vencimiento}</td>
+      <td class="text-right text-xs text-slate-600">${fmtUSD(p.prima_anterior_usd, 2)}</td>
+      <td class="text-right font-semibold text-slate-900">${fmtUSD(p.prima_renovacion_usd, 2)}</td>
       <td class="text-right text-xs ${changeColor}">${p.cambio_prima_pct >= 0 ? "+" : ""}${p.cambio_prima_pct.toFixed(1)}%</td>
       <td class="text-right">
-        <span class="px-2 py-0.5 rounded text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-400/30">${p.p_fuga_pct.toFixed(1)}%</span>
+        <span class="px-2 py-0.5 rounded text-xs font-bold bg-red-50 text-red-700 border border-red-200">${p.p_fuga_pct.toFixed(1)}%</span>
       </td>
-      <td class="text-right font-extrabold text-amber-300 text-sm">${fmtUSD(p.valor_en_riesgo_usd, 2)}</td>
+      <td class="text-right font-extrabold text-[#002D62] text-sm">${fmtUSD(p.valor_en_riesgo_usd, 2)}</td>
       <td class="text-center">
-        <button onclick="event.stopPropagation(); openCopilotModal('${p.poliza}')" class="cp-btn-action px-2.5 py-1 rounded text-xs font-semibold">
+        <button onclick="event.stopPropagation(); openCopilotModal('${p.poliza}')" class="cp-btn-primary px-2.5 py-1 text-xs font-semibold">
           🤖 Copiloto IA
         </button>
       </td>
@@ -807,17 +815,18 @@ function renderCaso2RoiBarsChart(lanes, sm) {
       height: 285,
       toolbar: { show: false },
       background: "transparent",
-      foreColor: "#e2e8f0",
+      foreColor: "#1E293B",
     },
+    theme: { mode: "light" },
     plotOptions: {
       bar: {
         horizontal: true,
-        borderRadius: 6,
+        borderRadius: 4,
         barHeight: "65%",
         distributed: true,
       },
     },
-    colors: ["#38bdf8", "#10b981", "#f59e0b", "#3b82f6"],
+    colors: ["#0284C7", "#10B981", "#F59E0B", "#004899"],
     dataLabels: {
       enabled: true,
       formatter: (v) => `+${fmtUSD(v, 0)} USD`,
@@ -828,16 +837,16 @@ function renderCaso2RoiBarsChart(lanes, sm) {
       categories: categories,
       labels: {
         formatter: (v) => fmtUSD(v, 0),
-        style: { colors: "#cbd5e1", fontSize: "10px" },
+        style: { colors: "#475569", fontSize: "10px" },
       },
     },
     yaxis: {
-      labels: { style: { colors: "#ffffff", fontSize: "11px", fontWeight: 600 } },
+      labels: { style: { colors: "#002D62", fontSize: "11px", fontWeight: 700 } },
     },
-    grid: { borderColor: "#1C376C", strokeDashArray: 3 },
+    grid: { borderColor: "#E2E8F0", strokeDashArray: 3 },
     legend: { show: false },
     tooltip: {
-      theme: "dark",
+      theme: "light",
       y: { formatter: (v) => `+${fmtUSD(v, 2)} USD / año` },
     },
   };
@@ -874,10 +883,9 @@ async function openCopilotModal(polizaId) {
     document.getElementById("cop-prima-alt").textContent = fmtUSD(data.prima_alternativa_sugerida_usd, 2);
     document.getElementById("cop-ahorro").textContent = `Ahorro: ${fmtUSD(data.ahorro_potencial_cliente_usd, 2)} (${data.aseguradora_alternativa})`;
 
-    // Formatear markdown básico a texto limpio con negritas
     const cleanScript = data.argumento_retencion
-      .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-      .replace(/`(.*?)`/g, "<code class='bg-blue-100 text-blue-900 px-1 rounded'>$1</code>");
+      .replace(/\*\*(.*?)\*\*/g, "<strong class='text-[#002D62]'>$1</strong>")
+      .replace(/`(.*?)`/g, "<code class='bg-blue-100 text-[#004899] font-bold px-1 rounded'>$1</code>");
     document.getElementById("cop-script-text").innerHTML = cleanScript;
 
     const ul = document.getElementById("cop-risk-factors");
@@ -888,7 +896,7 @@ async function openCopilotModal(polizaId) {
       ul.appendChild(li);
     });
     const liStrat = document.createElement("li");
-    liStrat.innerHTML = `<strong class="text-emerald-300">Estrategia Recomendada:</strong> ${data.estrategia_precio}`;
+    liStrat.innerHTML = `<strong class="text-[#004899]">Estrategia Recomendada:</strong> ${data.estrategia_precio}`;
     ul.appendChild(liStrat);
 
     const qBody = document.getElementById("cop-quotes-tbody");
@@ -896,15 +904,15 @@ async function openCopilotModal(polizaId) {
     data.cotizaciones.forEach((q, idx) => {
       const tr = document.createElement("tr");
       if (idx === 2) {
-        tr.className = "bg-emerald-900/40 font-semibold";
+        tr.className = "bg-emerald-50 font-semibold border-l-4 border-l-emerald-500";
       }
       tr.innerHTML = `
-        <td class="text-white">${q["Opción"]}</td>
-        <td class="text-blue-200">${q["Aseguradora"]}</td>
-        <td class="text-right font-bold text-white">${fmtUSD(q["Prima Anual (USD)"], 2)}</td>
-        <td class="text-right text-blue-200">${q["Variación vs Anterior"]}</td>
-        <td class="text-right font-semibold text-emerald-300">${fmtUSD(q["Ahorro vs Cotización Base (USD)"], 2)}</td>
-        <td class="text-right text-amber-300">${fmtUSD(q["Comisión Capesa (USD)"], 2)}</td>
+        <td class="text-slate-800">${q["Opción"]}</td>
+        <td class="text-[#004899] font-medium">${q["Aseguradora"]}</td>
+        <td class="text-right font-bold text-slate-900">${fmtUSD(q["Prima Anual (USD)"], 2)}</td>
+        <td class="text-right text-slate-600">${q["Variación vs Anterior"]}</td>
+        <td class="text-right font-bold text-emerald-600">${fmtUSD(q["Ahorro vs Cotización Base (USD)"], 2)}</td>
+        <td class="text-right text-slate-900 font-semibold">${fmtUSD(q["Comisión Capesa (USD)"], 2)}</td>
       `;
       qBody.appendChild(tr);
     });
@@ -940,4 +948,3 @@ window.addEventListener("keydown", (e) => {
 document.addEventListener("DOMContentLoaded", () => {
   fetchCaso1Data();
 });
-
