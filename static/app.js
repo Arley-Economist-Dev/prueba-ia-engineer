@@ -1094,30 +1094,33 @@ function renderCaso2PrioAndRoi(data) {
 }
 
 function renderCaso2RoiBarsChart(lanes, sm) {
-  // Ordenado de mayor a menor con destaque en TOTAL RESCATADO ANUAL
+  // Ordenado de mayor a menor con nombres concisos y escala optimizada
   const items = [
-    { name: "TOTAL RESCATADO ANUAL", value: Math.round(sm.impacto_economico_anual_usd || 0), isTotal: true },
-    { name: "Carril 2: Bot IA (T-25 días)", value: Math.round(lanes[1]?.Impacto_Comisiones_Anual_USD || 0) },
-    { name: "Carril 3: Gestores + Copiloto", value: Math.round(lanes[2]?.Impacto_Comisiones_Anual_USD || 0) },
-    { name: "Carril 1: Zero-Touch Digital", value: Math.round(lanes[0]?.Impacto_Comisiones_Anual_USD || 0) },
+    { name: "Total Rescatado", value: Math.round(sm.impacto_economico_anual_usd || 0), isTotal: true },
+    { name: "Carril 2: Bot IA (T-25d)", value: Math.round(lanes[1]?.Impacto_Comisiones_Anual_USD || 0) },
+    { name: "Carril 3: Gestores + IA", value: Math.round(lanes[2]?.Impacto_Comisiones_Anual_USD || 0) },
+    { name: "Carril 1: Zero-Touch", value: Math.round(lanes[0]?.Impacto_Comisiones_Anual_USD || 0) },
   ].sort((a, b) => b.value - a.value);
 
   const categories = items.map((i) => i.name);
   const values = items.map((i) => i.value);
+  const maxVal = Math.max(...values, 10000);
+  const xMax = Math.ceil((maxVal * 1.30) / 100000) * 100000;
+
   const colors = items.map((i) =>
     i.isTotal
-      ? "#FFFFFF"
-      : i.name.includes("Carril 2")
-      ? "#18489B"
-      : i.name.includes("Carril 3")
       ? "#38BDF8"
-      : "#E0A96D"
+      : i.name.includes("Carril 2")
+      ? "#60A5FA"
+      : i.name.includes("Carril 3")
+      ? "#818CF8"
+      : "#FBBF24"
   );
 
   const options = {
     chart: {
       type: "bar",
-      height: 285,
+      height: 290,
       toolbar: { show: false },
       background: "transparent",
       foreColor: "#FFFFFFB3",
@@ -1133,26 +1136,41 @@ function renderCaso2RoiBarsChart(lanes, sm) {
       bar: {
         horizontal: true,
         borderRadius: 4,
-        barHeight: "65%",
+        barHeight: "56%",
         distributed: true,
+        dataLabels: {
+          position: "top",
+        },
       },
     },
     colors: colors,
     dataLabels: {
       enabled: true,
-      formatter: (v) => `+${fmtUSD(v, 0)} USD`,
+      textAnchor: "start",
+      offsetX: 10,
+      formatter: (v) => `+${fmtUSD(v, 0)}`,
       style: {
         fontSize: "11px",
-        fontWeight: "bold",
-        colors: ["#17217D"],
+        fontWeight: "700",
+        colors: ["#FFFFFF"],
         fontFamily: "Inter, sans-serif",
       },
     },
     series: [{ name: "Comisiones Rescatadas (USD/año)", data: values }],
     xaxis: {
+      type: "numeric",
       categories: categories,
+      min: 0,
+      max: xMax,
+      tickAmount: 4,
       labels: {
-        formatter: (v) => fmtUSD(v, 0),
+        rotate: 0,
+        formatter: function (v) {
+          if (!v || v === 0) return "$0";
+          if (v >= 1000000) return `$${(v / 1000000).toFixed(1)}M`;
+          if (v >= 1000) return `$${Math.round(v / 1000)}k`;
+          return `$${v}`;
+        },
         style: { colors: "#FFFFFFB3", fontSize: "10px", fontFamily: "Inter, sans-serif" },
       },
       axisBorder: { color: "rgba(255, 255, 255, 0.08)" },
@@ -1160,10 +1178,11 @@ function renderCaso2RoiBarsChart(lanes, sm) {
     },
     yaxis: {
       labels: {
+        maxWidth: 165,
         style: {
           colors: "#FFFFFF",
           fontSize: "11px",
-          fontWeight: 700,
+          fontWeight: 600,
           fontFamily: "Inter, sans-serif",
         },
       },
@@ -1171,7 +1190,7 @@ function renderCaso2RoiBarsChart(lanes, sm) {
     grid: {
       borderColor: "rgba(255, 255, 255, 0.08)",
       xaxis: { lines: { show: false } },
-      padding: { left: 10, right: 15 },
+      padding: { left: 5, right: 35, bottom: 5 },
     },
     legend: { show: false },
     tooltip: {
@@ -1181,14 +1200,13 @@ function renderCaso2RoiBarsChart(lanes, sm) {
   };
 
   if (chartC2RoiBars) {
-    chartC2RoiBars.updateOptions(options);
-  } else {
-    chartC2RoiBars = new ApexCharts(
-      document.querySelector("#chart-c2-roi-bars"),
-      options
-    );
-    chartC2RoiBars.render();
+    chartC2RoiBars.destroy();
   }
+  chartC2RoiBars = new ApexCharts(
+    document.querySelector("#chart-c2-roi-bars"),
+    options
+  );
+  chartC2RoiBars.render();
 }
 
 // ---------------------------------------------------------------------------
