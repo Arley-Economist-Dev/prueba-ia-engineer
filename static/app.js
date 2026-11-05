@@ -7,9 +7,10 @@ let caso1State = null;
 let caso2DiagState = null;
 let caso2PrioState = null;
 
-// Instancias de ApexCharts
+// Instancias de ApexCharts (Skill: data-visualization)
 let chartC1Bars = null;
 let chartC1Donut = null;
+let chartC1Trajectory = null;
 let chartC2Anticipation = null;
 let chartC2Payment = null;
 let chartC2Break = null;
@@ -228,10 +229,38 @@ function renderCaso1Table(models, totals) {
 }
 
 function renderCaso1ApexBars(models) {
-  const categories = models.map((m) => m.Modelo);
-  const sPedido = models.map((m) => m.Pedido_Sugerido_Oct26);
-  const sInv = models.map((m) => m.Inv_30Sep);
-  const sTrans = models.map((m) => m.Transito_Oct26_Ene27);
+  // Regla Tufte Data-to-Ink: Ordenar de mayor a menor según Pedido Sugerido
+  const sorted = [...models].sort(
+    (a, b) => b.Pedido_Sugerido_Oct26 - a.Pedido_Sugerido_Oct26
+  );
+  const categories = sorted.map((m) => m.Modelo);
+
+  const sPedidoData = sorted.map((m) => {
+    let minLot = 0;
+    if (m.Lote_Min_Mult) {
+      const parts = String(m.Lote_Min_Mult).split("/");
+      minLot = parseInt(parts[0], 10) || 0;
+    }
+    return {
+      x: m.Modelo,
+      y: m.Pedido_Sugerido_Oct26,
+      goals:
+        minLot > 0
+          ? [
+              {
+                name: "Lote Mínimo",
+                value: minLot,
+                strokeWidth: 4,
+                strokeHeight: 12,
+                strokeColor: "#FF7C5C", // Resaltado ámbar/coral para límites críticos
+              },
+            ]
+          : [],
+    };
+  });
+
+  const sInv = sorted.map((m) => m.Inv_30Sep);
+  const sTrans = sorted.map((m) => m.Transito_Oct26_Ene27);
 
   const options = {
     chart: {
@@ -239,39 +268,60 @@ function renderCaso1ApexBars(models) {
       height: 375,
       toolbar: { show: false },
       background: "transparent",
-      foreColor: "#1E293B",
-      animations: { enabled: true, speed: 300 },
+      foreColor: "#FFFFFFB3",
+      animations: {
+        enabled: true,
+        easing: "easeinout",
+        speed: 400,
+        dynamicAnimation: { enabled: false },
+      },
     },
-    theme: { mode: "light" },
+    theme: { mode: "dark" },
     plotOptions: {
       bar: {
         horizontal: true,
         barHeight: "72%",
-        borderRadius: 4,
+        borderRadius: 3,
       },
     },
     dataLabels: {
       enabled: true,
-      style: { fontSize: "10px", colors: ["#ffffff"] },
+      style: { fontSize: "10px", colors: ["#FFFFFF"], fontFamily: "Inter, sans-serif" },
+      formatter: (val) => (val > 0 ? `${val}` : ""),
     },
-    stroke: { show: true, width: 1, colors: ["#ffffff"] },
-    colors: ["#004899", "#64748B", "#0284C7"],
+    stroke: { show: true, width: 1, colors: ["#1C376C"] },
+    colors: ["#18489B", "#FFFFFF", "#38BDF8"],
     series: [
-      { name: "Pedido Recomendado Oct-26", data: sPedido },
+      { name: "Pedido Recomendado Oct-26", data: sPedidoData },
       { name: "Inventario Actual (30/Sep)", data: sInv },
       { name: "En Tránsito (Oct26–Ene27)", data: sTrans },
     ],
     xaxis: {
       categories: categories,
-      labels: { style: { colors: "#475569", fontSize: "11px", fontWeight: 500 } },
+      labels: {
+        style: { colors: "#FFFFFFB3", fontSize: "11px", fontFamily: "Inter, sans-serif" },
+      },
+      axisBorder: { color: "rgba(255, 255, 255, 0.08)" },
+      axisTicks: { color: "rgba(255, 255, 255, 0.08)" },
     },
     yaxis: {
-      labels: { style: { colors: "#002D62", fontSize: "11px", fontWeight: 700 } },
+      labels: {
+        style: { colors: "#FFFFFF", fontSize: "11px", fontWeight: 600, fontFamily: "Inter, sans-serif" },
+      },
     },
-    grid: { borderColor: "#E2E8F0", strokeDashArray: 3 },
-    legend: { position: "top", horizontalAlign: "left", labels: { colors: "#1E293B" } },
+    grid: {
+      borderColor: "rgba(255, 255, 255, 0.08)",
+      xaxis: { lines: { show: false } }, // Cero líneas verticales superfluas
+      yaxis: { lines: { show: true } },
+    },
+    legend: {
+      position: "top",
+      horizontalAlign: "left",
+      labels: { colors: "#FFFFFFB3" },
+      fontFamily: "Inter, sans-serif",
+    },
     tooltip: {
-      theme: "light",
+      theme: "dark",
       y: { formatter: (val) => `${val} unidades` },
     },
   };
@@ -285,68 +335,77 @@ function renderCaso1ApexBars(models) {
 }
 
 function renderCaso1ApexDonut(models) {
-  const activeModels = models.filter((m) => m.Margen_Bruto_Esperado_USD > 0);
-  const labels = activeModels.map((m) => m.Modelo);
-  const series = activeModels.map((m) => Math.round(m.Margen_Bruto_Esperado_USD));
+  // Regla Tufte Estricta: Cero gráficos de pastel con más de 4 categorías
+  const activeModels = [...models]
+    .filter((m) => m.Margen_Bruto_Esperado_USD > 0)
+    .sort((a, b) => b.Margen_Bruto_Esperado_USD - a.Margen_Bruto_Esperado_USD);
+
+  const top3 = activeModels.slice(0, 3);
+  const others = activeModels.slice(3);
+
+  const labels = top3.map((m) => m.Modelo);
+  const series = top3.map((m) => Math.round(m.Margen_Bruto_Esperado_USD));
+
+  if (others.length > 0) {
+    labels.push("Otros Modelos");
+    const otherSum = others.reduce((acc, m) => acc + Math.round(m.Margen_Bruto_Esperado_USD), 0);
+    series.push(otherSum);
+  }
+
+  const totalMargen = series.reduce((a, b) => a + b, 0);
 
   const options = {
     chart: {
       type: "donut",
       height: 375,
       background: "transparent",
-      foreColor: "#1E293B",
+      foreColor: "#FFFFFFB3",
+      animations: {
+        enabled: true,
+        easing: "easeinout",
+        speed: 400,
+        dynamicAnimation: { enabled: false },
+      },
     },
-    theme: { mode: "light" },
+    theme: { mode: "dark" },
     labels: labels,
     series: series,
-    colors: [
-      "#004899",
-      "#002D62",
-      "#D32F2F",
-      "#0284C7",
-      "#10B981",
-      "#F59E0B",
-      "#8B5CF6",
-      "#EC4899",
-      "#0D9488",
-      "#6366F1",
-    ],
-    stroke: { colors: ["#FFFFFF"], width: 2 },
+    colors: ["#FFFFFF", "#18489B", "#38BDF8", "#E0A96D"],
+    stroke: { colors: ["#17217D"], width: 2 },
     dataLabels: {
       enabled: true,
       formatter: (val) => `${val.toFixed(1)}%`,
-      style: { fontSize: "11px", fontWeight: "bold" },
+      style: { fontSize: "11px", fontWeight: "bold", fontFamily: "Inter, sans-serif" },
     },
     plotOptions: {
       pie: {
         donut: {
-          size: "62%",
+          size: "68%",
           labels: {
             show: true,
-            name: { show: true, color: "#64748B", fontSize: "13px" },
+            name: { show: true, color: "#FFFFFFB3", fontSize: "12px", fontFamily: "Inter, sans-serif" },
             value: {
               show: true,
-              color: "#002D62",
+              color: "#FFFFFF",
               fontSize: "18px",
               fontWeight: 800,
+              fontFamily: "Inter, sans-serif",
               formatter: (v) => fmtUSD(v, 0),
             },
             total: {
               show: true,
-              label: "Margen Total",
-              color: "#64748B",
-              formatter: (w) => {
-                const total = w.globals.seriesTotals.reduce((a, b) => a + b, 0);
-                return fmtUSD(total, 0);
-              },
+              label: "Margen Bruto Total",
+              color: "#FFFFFFB3",
+              fontFamily: "Inter, sans-serif",
+              formatter: () => fmtUSD(totalMargen, 0),
             },
           },
         },
       },
     },
-    legend: { position: "bottom", labels: { colors: "#334155" } },
+    legend: { position: "bottom", labels: { colors: "#FFFFFFB3" }, fontFamily: "Inter, sans-serif" },
     tooltip: {
-      theme: "light",
+      theme: "dark",
       y: { formatter: (val) => fmtUSD(val, 0) },
     },
   };
@@ -364,6 +423,8 @@ function renderCaso1TrajectoryChart() {
   const raw = caso1State.monthly_projection;
 
   let rows = [];
+  let safetyStockTarget = 0;
+
   if (sel === "ALL") {
     const byOrder = {};
     raw.forEach((r) => {
@@ -381,61 +442,93 @@ function renderCaso1TrajectoryChart() {
       byOrder[r.Orden_Mes].Llegadas_Uds += r.Llegadas_Uds;
     });
     rows = Object.values(byOrder).sort((a, b) => a.Orden_Mes - b.Orden_Mes);
+    safetyStockTarget = Math.round(
+      caso1State.models.reduce((acc, m) => acc + (m.Stock_Seguridad_Objetivo || 0), 0)
+    );
   } else {
     rows = raw.filter((r) => r.Modelo === sel).sort((a, b) => a.Orden_Mes - b.Orden_Mes);
+    const mFound = caso1State.models.find((m) => m.Modelo === sel);
+    safetyStockTarget = mFound ? Math.round(mFound.Stock_Seguridad_Objetivo) : 0;
   }
 
   const xLabels = rows.map((r) => r.Etiqueta_Mes);
-  const yInv = rows.map((r) => Number(r.Inventario_Cierre_Uds.toFixed(1)));
-  const yDem = rows.map((r) => Number(r.Demanda_Mensual_Uds.toFixed(1)));
-  const yArr = rows.map((r) => Number(r.Llegadas_Uds.toFixed(1)));
+  const yInv = rows.map((r) => Math.round(r.Inventario_Cierre_Uds));
+  const yDem = rows.map((r) => Math.round(r.Demanda_Mensual_Uds));
+  const ySafety = rows.map(() => safetyStockTarget);
 
-  const traces = [
-    {
-      x: xLabels,
-      y: yArr,
-      type: "bar",
-      name: "Llegadas (Tránsito / Pedido Oct)",
-      marker: { color: "rgba(0, 72, 153, 0.25)" },
+  const options = {
+    chart: {
+      type: "area",
+      height: 360,
+      toolbar: { show: false },
+      background: "transparent",
+      foreColor: "#FFFFFFB3",
+      animations: {
+        enabled: true,
+        easing: "easeinout",
+        speed: 400,
+        dynamicAnimation: { enabled: false },
+      },
     },
-    {
-      x: xLabels,
-      y: yInv,
-      type: "scatter",
-      mode: "lines+markers+text",
-      name: "Inventario Proy. al Cierre (uds)",
-      text: yInv.map((v) => `${Math.round(v)}`),
-      textposition: "top center",
-      textfont: { color: "#002D62", size: 11, weight: 700 },
-      line: { color: "#004899", width: 3.5 },
-      marker: { size: 8, color: "#002D62" },
+    theme: { mode: "dark" },
+    stroke: { curve: "smooth", width: [3, 2.5, 2] },
+    colors: ["#FFFFFF", "#FF7C5C", "#38BDF8"],
+    fill: {
+      type: ["gradient", "solid", "solid"],
+      gradient: {
+        shade: "dark",
+        type: "vertical",
+        shadeIntensity: 0.5,
+        opacityFrom: 0.35,
+        opacityTo: 0.05,
+      },
     },
-    {
-      x: xLabels,
-      y: yDem,
-      type: "scatter",
-      mode: "lines+markers",
-      name: "Demanda Mensual Planificada",
-      line: { color: "#D32F2F", width: 2.5, dash: "dash" },
-      marker: { size: 7, color: "#D32F2F" },
+    series: [
+      { name: "Inventario Proyectado al Cierre", data: yInv, type: "area" },
+      { name: "Línea de Stock de Seguridad Recomendada", data: ySafety, type: "line" },
+      { name: "Demanda Mensual Planificada", data: yDem, type: "line" },
+    ],
+    markers: {
+      size: [5, 0, 4],
+      strokeColors: "#17217D",
+      strokeWidth: 2,
     },
-  ];
-
-  const layout = {
-    paper_bgcolor: "rgba(0,0,0,0)",
-    plot_bgcolor: "rgba(0,0,0,0)",
-    font: { color: "#334155", family: "Inter, sans-serif", size: 11 },
-    margin: { l: 45, r: 20, t: 25, b: 60 },
-    legend: { orientation: "h", y: 1.15, x: 0 },
-    xaxis: { gridcolor: "#E2E8F0", tickangle: -20 },
-    yaxis: { gridcolor: "#E2E8F0", title: "Unidades" },
-    barmode: "overlay",
+    xaxis: {
+      categories: xLabels,
+      labels: {
+        style: { colors: "#FFFFFFB3", fontSize: "11px", fontFamily: "Inter, sans-serif" },
+      },
+      axisBorder: { color: "rgba(255, 255, 255, 0.08)" },
+      axisTicks: { color: "rgba(255, 255, 255, 0.08)" },
+    },
+    yaxis: {
+      title: { text: "Unidades", style: { color: "#FFFFFFB3", fontSize: "11px" } },
+      labels: {
+        style: { colors: "#FFFFFFB3", fontSize: "11px", fontFamily: "Inter, sans-serif" },
+      },
+    },
+    grid: {
+      borderColor: "rgba(255, 255, 255, 0.08)",
+      xaxis: { lines: { show: false } },
+    },
+    legend: {
+      position: "top",
+      horizontalAlign: "left",
+      labels: { colors: "#FFFFFFB3" },
+      fontFamily: "Inter, sans-serif",
+    },
+    tooltip: {
+      theme: "dark",
+      y: { formatter: (val) => `${val} unidades` },
+    },
   };
 
-  Plotly.react("chart-c1-trajectory", traces, layout, {
-    responsive: true,
-    displayModeBar: false,
-  });
+  if (chartC1Trajectory) {
+    chartC1Trajectory.updateOptions(options);
+  } else {
+    chartC1Trajectory = new ApexCharts(document.querySelector("#chart-c1-trajectory"), options);
+    chartC1Trajectory.render();
+  }
 }
 
 function renderCaso1MixChart() {
@@ -454,7 +547,7 @@ function renderCaso1MixChart() {
   const colorsUnique = [...new Set(rows.map((r) => r.Color))];
   const versionsUnique = [...new Set(rows.map((r) => r.Versión))];
 
-  const palette = ["#004899", "#D32F2F", "#0284C7", "#10B981", "#64748B", "#F59E0B"];
+  const palette = ["#FFFFFF", "#18489B", "#38BDF8", "#FF7C5C", "#E0A96D", "#94A3B8"];
   const traces = colorsUnique.map((colorName, idx) => {
     const yVals = versionsUnique.map((ver) => {
       const found = rows.find((r) => r.Versión === ver && r.Color === colorName);
@@ -473,13 +566,13 @@ function renderCaso1MixChart() {
 
   const layout = {
     barmode: "stack",
-    paper_bgcolor: "rgba(0,0,0,0)",
-    plot_bgcolor: "rgba(0,0,0,0)",
-    font: { color: "#334155", family: "Inter, sans-serif", size: 11 },
+    paper_bgcolor: "transparent",
+    plot_bgcolor: "transparent",
+    font: { color: "#FFFFFFB3", family: "Inter, sans-serif", size: 11 },
     margin: { l: 45, r: 20, t: 25, b: 55 },
     legend: { orientation: "h", y: 1.15, x: 0 },
-    xaxis: { gridcolor: "#E2E8F0" },
-    yaxis: { gridcolor: "#E2E8F0", title: yAxisTitle },
+    xaxis: { gridcolor: "rgba(255, 255, 255, 0.08)", color: "#FFFFFFB3" },
+    yaxis: { gridcolor: "rgba(255, 255, 255, 0.08)", color: "#FFFFFFB3", title: yAxisTitle },
   };
 
   Plotly.react("chart-c1-mix", traces, layout, {
@@ -511,56 +604,118 @@ async function initCaso2() {
 }
 
 function renderCaso2DiagnosticCharts(diag) {
-  // 1. Curva de Renovación Manual según Días de Anticipación
+  // 1. Curva de Elasticidad de Contacto (Spline Smooth Line con Marcadores Fijos en T-20 vs T-3)
   const manualCurve = diag.anticipation_curve.filter(
     (r) => r["Forma de pago"] === "Manual"
   );
+  
+  const antCategories = manualCurve.map((r) =>
+    r.Tramo_Anticipacion.replace(/^\d+\.\s*/, "")
+  );
+  const antValues = manualCurve.map((r) => r.Tasa_Renovacion_Pct);
+
   const antOptions = {
     chart: {
-      type: "bar",
+      type: "line",
       height: 300,
       toolbar: { show: false },
       background: "transparent",
-      foreColor: "#1E293B",
-    },
-    theme: { mode: "light" },
-    plotOptions: {
-      bar: {
-        borderRadius: 4,
-        columnWidth: "60%",
-        distributed: true,
-        dataLabels: { position: "top" },
+      foreColor: "#FFFFFFB3",
+      animations: {
+        enabled: true,
+        easing: "easeinout",
+        speed: 400,
+        dynamicAnimation: { enabled: false },
       },
     },
-    colors: ["#D32F2F", "#EA580C", "#F59E0B", "#0284C7", "#004899", "#10B981"],
-    dataLabels: {
-      enabled: true,
-      formatter: (v) => `${v.toFixed(1)}%`,
-      offsetY: -18,
-      style: { fontSize: "10px", colors: ["#0F172A"], fontWeight: "bold" },
-    },
+    theme: { mode: "dark" },
+    stroke: { curve: "smooth", width: 3.5 },
+    colors: ["#38BDF8"],
     series: [
       {
         name: "Tasa de Renovación Manual (%)",
-        data: manualCurve.map((r) => r.Tasa_Renovacion_Pct),
+        data: antValues,
       },
     ],
+    markers: {
+      size: 5,
+      strokeColors: "#17217D",
+      strokeWidth: 2,
+    },
+    annotations: {
+      points: [
+        {
+          x: antCategories[antCategories.length - 1], // >= 20 días
+          y: antValues[antValues.length - 1],
+          marker: {
+            size: 8,
+            fillColor: "#10B981",
+            strokeColor: "#FFFFFF",
+            radius: 2,
+          },
+          label: {
+            borderColor: "#10B981",
+            offsetY: -10,
+            style: {
+              color: "#FFFFFF",
+              background: "#065F46",
+              fontSize: "10px",
+              fontWeight: 700,
+              fontFamily: "Inter, sans-serif",
+            },
+            text: `Meta T-20d: ${antValues[antValues.length - 1].toFixed(1)}%`,
+          },
+        },
+        {
+          x: antCategories[1], // 1 - 3 días
+          y: antValues[1],
+          marker: {
+            size: 8,
+            fillColor: "#FF7C5C",
+            strokeColor: "#FFFFFF",
+          },
+          label: {
+            borderColor: "#FF7C5C",
+            offsetY: 20,
+            style: {
+              color: "#FFFFFF",
+              background: "#7C2D12",
+              fontSize: "10px",
+              fontWeight: 700,
+              fontFamily: "Inter, sans-serif",
+            },
+            text: `Realidad T-3d: ${antValues[1].toFixed(1)}%`,
+          },
+        },
+      ],
+    },
     xaxis: {
-      categories: manualCurve.map((r) =>
-        r.Tramo_Anticipacion.replace(/^\d+\.\s*/, "")
-      ),
+      categories: antCategories,
       labels: {
-        style: { colors: "#475569", fontSize: "10px" },
-        rotate: -25,
+        style: { colors: "#FFFFFFB3", fontSize: "10px", fontFamily: "Inter, sans-serif" },
+        rotate: -20,
       },
+      axisBorder: { color: "rgba(255, 255, 255, 0.08)" },
+      axisTicks: { color: "rgba(255, 255, 255, 0.08)" },
     },
     yaxis: {
       max: 85,
-      title: { text: "% Renovación", style: { color: "#002D62" } },
+      min: 0,
+      title: { text: "% Renovación", style: { color: "#FFFFFFB3", fontSize: "11px" } },
+      labels: {
+        style: { colors: "#FFFFFFB3", fontSize: "10px", fontFamily: "Inter, sans-serif" },
+        formatter: (v) => `${v.toFixed(0)}%`,
+      },
     },
-    grid: { borderColor: "#E2E8F0", strokeDashArray: 3 },
+    grid: {
+      borderColor: "rgba(255, 255, 255, 0.08)",
+      xaxis: { lines: { show: false } },
+    },
     legend: { show: false },
-    tooltip: { theme: "light" },
+    tooltip: {
+      theme: "dark",
+      y: { formatter: (v) => `${v.toFixed(1)}% de Renovación` },
+    },
   };
   if (chartC2Anticipation) chartC2Anticipation.destroy();
   chartC2Anticipation = new ApexCharts(
@@ -569,53 +724,75 @@ function renderCaso2DiagnosticCharts(diag) {
   );
   chartC2Anticipation.render();
 
-  // 2. Llamadas por Forma de Pago vs Tasa de Renovación
+  // 2. Distribución de Carga Operativa (Donut de una Sola Capa: 12.6% Domiciliado/Financiado vs 87.4% Manual)
   const pay = diag.payment_efficiency;
+  const autoCalls = pay
+    .filter((r) => r["Forma de pago"] === "Domiciliado" || r["Forma de pago"] === "Financiado")
+    .reduce((sum, r) => sum + r.Llamadas_Bitacora, 0);
+  const manualCalls = pay
+    .filter((r) => r["Forma de pago"] === "Manual")
+    .reduce((sum, r) => sum + r.Llamadas_Bitacora, 0);
+  const totalCalls = autoCalls + manualCalls;
+  const autoPct = (autoCalls / totalCalls) * 100.0;
+
   const payOptions = {
     chart: {
       height: 300,
-      type: "line",
+      type: "donut",
       toolbar: { show: false },
       background: "transparent",
-      foreColor: "#1E293B",
+      foreColor: "#FFFFFFB3",
+      animations: {
+        enabled: true,
+        easing: "easeinout",
+        speed: 400,
+        dynamicAnimation: { enabled: false },
+      },
     },
-    theme: { mode: "light" },
-    series: [
-      {
-        name: "Llamadas en Bitácora",
-        type: "column",
-        data: pay.map((r) => r.Llamadas_Bitacora),
-      },
-      {
-        name: "Tasa de Renovación (%)",
-        type: "line",
-        data: pay.map((r) => r.Tasa_Renovacion_Raw_Pct),
-      },
+    theme: { mode: "dark" },
+    labels: [
+      `Cobro Automático (${autoPct.toFixed(1)}% Ineficiente)`,
+      `Manual (${(100 - autoPct).toFixed(1)}% Gestión Real)`,
     ],
-    colors: ["#004899", "#10B981"],
-    stroke: { width: [0, 3] },
+    series: [autoCalls, manualCalls],
+    colors: ["#FF7C5C", "#18489B"], // Resaltado coral para el 12.6% ineficiente vs azul corporativo
+    stroke: { colors: ["#17217D"], width: 2 },
     dataLabels: {
       enabled: true,
-      enabledOnSeries: [1],
       formatter: (v) => `${v.toFixed(1)}%`,
+      style: { fontSize: "11px", fontWeight: "bold", fontFamily: "Inter, sans-serif" },
     },
-    labels: pay.map((r) => r["Forma de pago"]),
-    yaxis: [
-      {
-        title: { text: "Llamadas", style: { color: "#002D62" } },
-        labels: { formatter: (v) => fmtInt(Math.round(v)) },
+    plotOptions: {
+      pie: {
+        donut: {
+          size: "68%",
+          labels: {
+            show: true,
+            name: { show: true, color: "#FFFFFFB3", fontSize: "11px", fontFamily: "Inter, sans-serif" },
+            value: {
+              show: true,
+              color: "#FF7C5C",
+              fontSize: "20px",
+              fontWeight: 800,
+              fontFamily: "Inter, sans-serif",
+              formatter: () => `${autoPct.toFixed(1)}%`,
+            },
+            total: {
+              show: true,
+              label: "Llamadas Ineficientes",
+              color: "#FFFFFFB3",
+              fontFamily: "Inter, sans-serif",
+              formatter: () => `${fmtInt(autoCalls)} llamadas`,
+            },
+          },
+        },
       },
-      {
-        opposite: true,
-        max: 105,
-        min: 0,
-        title: { text: "Renovación (%)", style: { color: "#059669" } },
-        labels: { formatter: (v) => `${v.toFixed(0)}%` },
-      },
-    ],
-    grid: { borderColor: "#E2E8F0", strokeDashArray: 3 },
-    legend: { position: "top", labels: { colors: "#1E293B" } },
-    tooltip: { theme: "light" },
+    },
+    legend: { position: "bottom", labels: { colors: "#FFFFFFB3" }, fontFamily: "Inter, sans-serif" },
+    tooltip: {
+      theme: "dark",
+      y: { formatter: (v) => `${fmtInt(v)} llamadas` },
+    },
   };
   if (chartC2Payment) chartC2Payment.destroy();
   chartC2Payment = new ApexCharts(
@@ -632,9 +809,15 @@ function renderCaso2DiagnosticCharts(diag) {
       type: "line",
       toolbar: { show: false },
       background: "transparent",
-      foreColor: "#1E293B",
+      foreColor: "#FFFFFFB3",
+      animations: {
+        enabled: true,
+        easing: "easeinout",
+        speed: 400,
+        dynamicAnimation: { enabled: false },
+      },
     },
-    theme: { mode: "light" },
+    theme: { mode: "dark" },
     series: [
       {
         name: "Pólizas / Gestor / Mes",
@@ -652,23 +835,41 @@ function renderCaso2DiagnosticCharts(diag) {
         data: evol.map((r) => r.Pct_En_Meta_20d),
       },
     ],
-    colors: ["#EA580C", "#004899", "#10B981"],
-    stroke: { width: [0, 3, 2.5], dashArray: [0, 0, 4] },
+    colors: ["#18489B", "#FFFFFF", "#FF7C5C"],
+    stroke: { width: [0, 3, 2.5], dashArray: [0, 0, 4], curve: "smooth" },
     labels: evol.map((r) => r.Mes_Str),
+    annotations: {
+      xaxis: [
+        {
+          x: "2025-12",
+          borderColor: "#FF7C5C",
+          strokeDashArray: 3,
+          label: {
+            borderColor: "#FF7C5C",
+            style: { color: "#FFFFFF", background: "#7C2D12", fontSize: "10px", fontWeight: "bold" },
+            text: "Salida G06 y G07",
+          },
+        },
+      ],
+    },
     xaxis: {
-      labels: { rotate: -35, style: { fontSize: "10px", colors: "#475569" } },
+      labels: { rotate: -35, style: { fontSize: "10px", colors: "#FFFFFFB3", fontFamily: "Inter, sans-serif" } },
+      axisBorder: { color: "rgba(255, 255, 255, 0.08)" },
+      axisTicks: { color: "rgba(255, 255, 255, 0.08)" },
     },
     yaxis: [
       {
-        title: { text: "Pólizas / Gestor", style: { color: "#C2410C" } },
+        title: { text: "Pólizas / Gestor", style: { color: "#FFFFFFB3", fontSize: "10px" } },
         min: 0,
         max: 480,
+        labels: { style: { colors: "#FFFFFFB3", fontSize: "10px" } },
       },
       {
         opposite: true,
-        title: { text: "Porcentaje (%)", style: { color: "#004899" } },
+        title: { text: "Porcentaje (%)", style: { color: "#FFFFFF", fontSize: "10px" } },
         min: 0,
         max: 75,
+        labels: { style: { colors: "#FFFFFFB3", fontSize: "10px" }, formatter: (v) => `${v.toFixed(0)}%` },
       },
       {
         opposite: true,
@@ -677,9 +878,12 @@ function renderCaso2DiagnosticCharts(diag) {
         max: 75,
       },
     ],
-    grid: { borderColor: "#E2E8F0", strokeDashArray: 3 },
-    legend: { position: "top", labels: { colors: "#1E293B" } },
-    tooltip: { theme: "light" },
+    grid: {
+      borderColor: "rgba(255, 255, 255, 0.08)",
+      xaxis: { lines: { show: false } },
+    },
+    legend: { position: "top", labels: { colors: "#FFFFFFB3" }, fontFamily: "Inter, sans-serif" },
+    tooltip: { theme: "dark" },
   };
   if (chartC2Break) chartC2Break.destroy();
   chartC2Break = new ApexCharts(
@@ -799,18 +1003,25 @@ function renderCaso2PrioAndRoi(data) {
 }
 
 function renderCaso2RoiBarsChart(lanes, sm) {
-  const categories = [
-    "Carril 1: Zero-Touch Digital",
-    "Carril 2: Bot IA (T-25 días)",
-    "Carril 3: Gestores + Copiloto",
-    "TOTAL RESCATADO ANUAL",
-  ];
-  const values = [
-    Math.round(lanes[0]?.Impacto_Comisiones_Anual_USD || 0),
-    Math.round(lanes[1]?.Impacto_Comisiones_Anual_USD || 0),
-    Math.round(lanes[2]?.Impacto_Comisiones_Anual_USD || 0),
-    Math.round(sm.impacto_economico_anual_usd || 0),
-  ];
+  // Ordenado de mayor a menor con destaque en TOTAL RESCATADO ANUAL
+  const items = [
+    { name: "TOTAL RESCATADO ANUAL", value: Math.round(sm.impacto_economico_anual_usd || 0), isTotal: true },
+    { name: "Carril 2: Bot IA (T-25 días)", value: Math.round(lanes[1]?.Impacto_Comisiones_Anual_USD || 0) },
+    { name: "Carril 3: Gestores + Copiloto", value: Math.round(lanes[2]?.Impacto_Comisiones_Anual_USD || 0) },
+    { name: "Carril 1: Zero-Touch Digital", value: Math.round(lanes[0]?.Impacto_Comisiones_Anual_USD || 0) },
+  ].sort((a, b) => b.value - a.value);
+
+  const categories = items.map((i) => i.name);
+  const values = items.map((i) => i.value);
+  const colors = items.map((i) =>
+    i.isTotal
+      ? "#FFFFFF"
+      : i.name.includes("Carril 2")
+      ? "#18489B"
+      : i.name.includes("Carril 3")
+      ? "#38BDF8"
+      : "#E0A96D"
+  );
 
   const options = {
     chart: {
@@ -818,9 +1029,15 @@ function renderCaso2RoiBarsChart(lanes, sm) {
       height: 285,
       toolbar: { show: false },
       background: "transparent",
-      foreColor: "#1E293B",
+      foreColor: "#FFFFFFB3",
+      animations: {
+        enabled: true,
+        easing: "easeinout",
+        speed: 400,
+        dynamicAnimation: { enabled: false },
+      },
     },
-    theme: { mode: "light" },
+    theme: { mode: "dark" },
     plotOptions: {
       bar: {
         horizontal: true,
@@ -829,27 +1046,44 @@ function renderCaso2RoiBarsChart(lanes, sm) {
         distributed: true,
       },
     },
-    colors: ["#0284C7", "#10B981", "#F59E0B", "#004899"],
+    colors: colors,
     dataLabels: {
       enabled: true,
       formatter: (v) => `+${fmtUSD(v, 0)} USD`,
-      style: { fontSize: "11px", fontWeight: "bold", colors: ["#ffffff"] },
+      style: {
+        fontSize: "11px",
+        fontWeight: "bold",
+        colors: ["#17217D"],
+        fontFamily: "Inter, sans-serif",
+      },
     },
     series: [{ name: "Comisiones Rescatadas (USD/año)", data: values }],
     xaxis: {
       categories: categories,
       labels: {
         formatter: (v) => fmtUSD(v, 0),
-        style: { colors: "#475569", fontSize: "10px" },
+        style: { colors: "#FFFFFFB3", fontSize: "10px", fontFamily: "Inter, sans-serif" },
       },
+      axisBorder: { color: "rgba(255, 255, 255, 0.08)" },
+      axisTicks: { color: "rgba(255, 255, 255, 0.08)" },
     },
     yaxis: {
-      labels: { style: { colors: "#002D62", fontSize: "11px", fontWeight: 700 } },
+      labels: {
+        style: {
+          colors: "#FFFFFF",
+          fontSize: "11px",
+          fontWeight: 700,
+          fontFamily: "Inter, sans-serif",
+        },
+      },
     },
-    grid: { borderColor: "#E2E8F0", strokeDashArray: 3 },
+    grid: {
+      borderColor: "rgba(255, 255, 255, 0.08)",
+      xaxis: { lines: { show: false } },
+    },
     legend: { show: false },
     tooltip: {
-      theme: "light",
+      theme: "dark",
       y: { formatter: (v) => `+${fmtUSD(v, 2)} USD / año` },
     },
   };

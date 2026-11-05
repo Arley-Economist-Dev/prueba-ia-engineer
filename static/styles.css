@@ -65,6 +65,67 @@ input[type="range"] + span {
   border-radius: 0.5rem;
 }
 
+/* Executive Dark Chart Cards (Skill: data-visualization)
+   Fondo estructural: #17217D con borde sutil #1C376C */
+.cp-chart-card {
+  background-color: #17217D;
+  border: 1px solid #1C376C;
+  border-radius: 0.625rem;
+  box-shadow: 0 4px 20px rgba(0, 20, 80, 0.25);
+  color: #FFFFFF;
+}
+
+.cp-chart-card h3 {
+  color: #FFFFFF !important;
+}
+
+.cp-chart-card p {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.cp-chart-card svg {
+  color: #38BDF8 !important;
+}
+
+.cp-chart-card select {
+  background-color: #122092 !important;
+  color: #FFFFFF !important;
+  border-color: #1C376C !important;
+}
+
+/* ApexCharts Tooltip Override (Skill: data-visualization) */
+.apexcharts-tooltip {
+  background: #122092 !important;
+  border: 1px solid #1C376C !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+  border-radius: 6px !important;
+}
+
+.apexcharts-tooltip-title {
+  background: #18489B !important;
+  border-bottom: 1px solid #1C376C !important;
+  color: #FFFFFF !important;
+  font-family: 'Inter', sans-serif !important;
+  font-weight: 700 !important;
+}
+
+.apexcharts-tooltip-text {
+  color: #FFFFFF !important;
+  font-family: 'Inter', sans-serif !important;
+}
+
+.apexcharts-xaxistooltip,
+.apexcharts-yaxistooltip {
+  background: #122092 !important;
+  border: 1px solid #1C376C !important;
+  color: #FFFFFF !important;
+}
+
+.apexcharts-legend-text {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
 /* KPI Card Hierarchy */
 .cp-kpi-card {
   background: var(--cp-surface-card);

@@ -224,31 +224,31 @@
 
       <!-- Gráficos ApexCharts: Barras Horizontales y Dona de Margen -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="cp-card p-5 lg:col-span-7">
+        <div class="cp-chart-card p-5 lg:col-span-7">
           <div class="mb-3">
-            <h3 class="text-sm sm:text-base font-bold text-[#002D62] flex items-center gap-2">
-              <svg class="w-4 h-4 text-[#004899]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
               </svg>
-              <span>Pedido Recomendado Oct-2026 vs Inventario Actual (30/Sep) y Tránsito</span>
+              <span>Pedido Recomendado Oct-2026 vs Inventario Actual y Tránsito</span>
             </h3>
-            <p class="text-xs text-slate-500">
-              Comparativa en unidades por modelo cumpliendo estrictamente lotes mínimos y múltiplos de fábrica
+            <p class="text-xs text-white/70">
+              Barras horizontales ordenadas de mayor a menor con marcadores visuales para Lote Mínimo de fábrica
             </p>
           </div>
           <div id="chart-c1-bars" class="w-full h-[375px]"></div>
         </div>
 
-        <div class="cp-card p-5 lg:col-span-5">
+        <div class="cp-chart-card p-5 lg:col-span-5">
           <div class="mb-3">
-            <h3 class="text-sm sm:text-base font-bold text-[#002D62] flex items-center gap-2">
-              <svg class="w-4 h-4 text-[#004899]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+              <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>
               </svg>
-              <span>Composición de Margen Bruto Estimado por Modelo (USD)</span>
+              <span>Composición de Margen Bruto por Modelo (Top 3 + Otros)</span>
             </h3>
-            <p class="text-xs text-slate-500">
-              Aporte financiero de cada línea al margen bruto total del pedido
+            <p class="text-xs text-white/70">
+              Distribución de margen sin saturación (máximo 4 categorías según regla Tufte)
             </p>
           </div>
           <div id="chart-c1-donut" class="w-full h-[375px]"></div>
@@ -299,38 +299,38 @@
         </div>
       </div>
 
-      <!-- Gráficos Inferiores: Curva de Inventario (Plotly) y Mezcla Versión/Color (Plotly) -->
+      <!-- Gráficos Inferiores: Curva de Inventario (Spline Area) y Mezcla Versión/Color -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
-        <div class="cp-card p-5 lg:col-span-6">
+        <div class="cp-chart-card p-5 lg:col-span-6">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
             <div>
-              <h3 class="text-sm sm:text-base font-bold text-[#002D62] flex items-center gap-2">
-                <svg class="w-4 h-4 text-[#004899]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
                 </svg>
-                <span>Curva Proyectada de Inventario vs Demanda (Sep 2026 – Abr 2027)</span>
+                <span>Curva de Cobertura Mensual Proyectada vs Stock de Seguridad</span>
               </h3>
-              <p class="text-xs text-slate-500">Simulación mes a mes con llegadas de tránsito y arribo del pedido en Feb-2027</p>
+              <p class="text-xs text-white/70">Spline Area mostrando inventario proyectado y línea fija de seguridad recomendada</p>
             </div>
-            <select id="c1-curve-model-select" onchange="renderCaso1TrajectoryChart()" class="bg-white text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#004899]">
+            <select id="c1-curve-model-select" onchange="renderCaso1TrajectoryChart()" class="bg-[#122092] text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-[#1C376C] focus:outline-none">
               <option value="ALL">Todos los Modelos (Consolidado)</option>
             </select>
           </div>
           <div id="chart-c1-trajectory" class="w-full h-[360px]"></div>
         </div>
 
-        <div class="cp-card p-5 lg:col-span-6">
+        <div class="cp-chart-card p-5 lg:col-span-6">
           <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
             <div>
-              <h3 class="text-sm sm:text-base font-bold text-[#002D62] flex items-center gap-2">
-                <svg class="w-4 h-4 text-[#004899]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/>
                 </svg>
                 <span>Mezcla Óptima Recomendada por Versión y Color (Hamilton)</span>
               </h3>
-              <p class="text-xs text-slate-500">Asignación exacta según velocidad de rotación histórica y quiebres CRM</p>
+              <p class="text-xs text-white/70">Asignación exacta según rotación y quiebres CRM sin saturación perceptual</p>
             </div>
-            <select id="c1-mix-model-select" onchange="renderCaso1MixChart()" class="bg-white text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-300 focus:outline-none focus:border-[#004899]">
+            <select id="c1-mix-model-select" onchange="renderCaso1MixChart()" class="bg-[#122092] text-white text-xs font-semibold px-3 py-1.5 rounded-lg border border-[#1C376C] focus:outline-none">
             </select>
           </div>
           <div id="chart-c1-mix" class="w-full h-[360px]"></div>
@@ -371,37 +371,46 @@
         </div>
       </div>
 
-      <!-- 1. Panel de Diagnóstico Ejecutivo (3 Gráficos ApexCharts en Tema Claro) -->
+      <!-- 1. Panel de Diagnóstico Ejecutivo (3 Gráficos ApexCharts - Skill: data-visualization) -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Gráfico 1: Curva de Retención vs Días de Anticipación -->
-        <div class="cp-card p-5">
-          <h3 class="text-sm font-bold text-[#002D62]">
-            Curva de Renovación Manual vs Días de Anticipación
+        <!-- Gráfico 1: Curva de Elasticidad de Contacto -->
+        <div class="cp-chart-card p-5">
+          <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+            </svg>
+            <span>Curva de Elasticidad de Contacto (Spline)</span>
           </h3>
-          <p class="text-xs text-slate-500 mb-2">
-            Contactar a &ge;20 días logra <strong>69.7%</strong> de éxito vs <strong>31.3%</strong> a &le;3 días y <strong>16.1%</strong> post-vencimiento
+          <p class="text-xs text-white/70 mb-2">
+            Línea suave destacando con anotación fija el punto meta T-20 días (69.7%) vs T-3 días (31.3%)
           </p>
           <div id="chart-c2-anticipation" class="w-full h-[310px]"></div>
         </div>
 
-        <!-- Gráfico 2: Llamadas por Forma de Pago (12.6% malgastado) -->
-        <div class="cp-card p-5">
-          <h3 class="text-sm font-bold text-[#002D62]">
-            Ineficiencia de Llamadas por Forma de Pago (Bitácora)
+        <!-- Gráfico 2: Distribución de Carga Operativa (Donut de una sola capa) -->
+        <div class="cp-chart-card p-5">
+          <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>
+            </svg>
+            <span>Distribución de Carga Operativa (Donut)</span>
           </h3>
-          <p class="text-xs text-slate-500 mb-2">
-            <strong>9,808 llamadas (12.6%)</strong> dedicadas a Domiciliado (94.5%) y Financiado (91.0%)
+          <p class="text-xs text-white/70 mb-2">
+            Donut de una capa contrastando el 12.6% de llamadas gastadas en cobro automático vs Manual
           </p>
           <div id="chart-c2-payment" class="w-full h-[310px]"></div>
         </div>
 
-        <!-- Gráfico 3: Quiebre Estructural Diciembre 2025 (Salida G06 y G07) -->
-        <div class="cp-card p-5">
-          <h3 class="text-sm font-bold text-[#002D62]">
-            Quiebre Estructural Dic-2025 (Salida G06 y G07: 7 &rarr; 5 Gestores)
+        <!-- Gráfico 3: Quiebre Estructural Diciembre 2025 -->
+        <div class="cp-chart-card p-5">
+          <h3 class="text-sm font-bold text-white flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            <span>Quiebre Estructural Dic-2025 (Salida G06/G07)</span>
           </h3>
-          <p class="text-xs text-slate-500 mb-2">
-            La carga subió de <strong>292 a 381 pólizas/gestor</strong> y la renovación cayó de <strong>62.0% a 50.6%</strong>
+          <p class="text-xs text-white/70 mb-2">
+            Salida de 2 gestores (7 &rarr; 5): la carga subió a 381 pólizas y la renovación cayó a 50.6%
           </p>
           <div id="chart-c2-break" class="w-full h-[310px]"></div>
         </div>
@@ -557,16 +566,16 @@
           </div>
         </div>
 
-        <!-- Gráfico de Barras de Impacto Financiero ROI -->
-        <div class="cp-card p-5 lg:col-span-5">
-          <h3 class="text-sm sm:text-base font-bold text-[#002D62] flex items-center gap-2">
-            <svg class="w-4 h-4 text-[#004899]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <!-- Gráfico de Barras de Impacto Financiero ROI (Skill: data-visualization) -->
+        <div class="cp-chart-card p-5 lg:col-span-5">
+          <h3 class="text-sm sm:text-base font-bold text-white flex items-center gap-2">
+            <svg class="w-4 h-4 text-[#38BDF8]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
             </svg>
             <span>Impacto Financiero Anual: Comisiones Rescatadas por Carril (USD)</span>
           </h3>
-          <p class="text-xs text-slate-500 mb-2">
-            Aporte financiero acumulado de cada carril a los ingresos de Capesa
+          <p class="text-xs text-white/70 mb-2">
+            Aporte acumulado por carril ordenado de mayor a menor con destaque en Total Rescatado
           </p>
           <div id="chart-c2-roi-bars" class="w-full h-[295px]"></div>
         </div>
