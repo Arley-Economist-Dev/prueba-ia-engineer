@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Casa Pellas · AI Executive Decision Suite</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            cpPrimary: '#122092',
+            cpSecondary: '#17217D',
+            cpBorder: '#1C376C',
+            cpAccent: '#18489B',
+            cpWhite: '#FFFFFF',
+          }
+        }
+      }
+    }
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://cdn.plot.ly/plotly-2.32.0.min.js"></script>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body class="antialiased selection:bg-blue-500 selection:text-white">
+
+  <!-- CABECERA EJECUTIVA CORPORATIVA -->
+  <header class="sticky top-0 z-40 border-b border-[#1C376C] bg-[#122092]/95 backdrop-blur-md shadow-xl">
+    <div class="max-w-[1600px] mx-auto px-4 sm:px-6 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      
+      <!-- Logo + Título -->
+      <div class="flex items-center gap-4">
+        <div class="bg-white px-3 py-1.5 rounded-lg shadow-md flex items-center justify-center border border-blue-200">
+          <img src="/branding/CP-Ne-rc@4x-scaled.webp" alt="Grupo Casa Pellas Logo" class="h-9 w-auto object-contain" onerror="this.style.display='none'" />
+        </div>
+        <div>
+          <div class="flex items-center gap-2.5 flex-wrap">
+            <h1 class="text-lg sm:text-xl font-extrabold tracking-tight text-white">
+              Casa Pellas · AI Executive Decision Suite
+            </h1>
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+              PRODUCTION · FASTAPI SPA
+            </span>
+          </div>
+          <p class="text-xs text-blue-200 mt-0.5">
+            Operations Research &amp; Machine Learning Engine · Corte de Datos: 30/09/2026 · Moneda: USD
+          </p>
+        </div>
+      </div>
+
+      <!-- Selector de Pestañas (Caso 1 / Caso 2) -->
+      <nav class="flex items-center gap-2 bg-[#17217D] p-1.5 rounded-xl border border-[#1C376C]">
+        <button id="tab-btn-caso1" onclick="switchTab('caso1')" class="cp-tab-btn active px-4 py-2 rounded-lg text-sm flex items-center gap-2 text-white">
+          <span>🚗</span>
+          <span>Caso 1: Pedidos Toyota</span>
+        </button>
+        <button id="tab-btn-caso2" onclick="switchTab('caso2')" class="cp-tab-btn px-4 py-2 rounded-lg text-sm flex items-center gap-2 text-blue-200 hover:text-white">
+          <span>🛡️</span>
+          <span>Caso 2: Renovaciones Capesa</span>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- CONTENEDOR PRINCIPAL -->
+  <main class="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+    <!-- ================================================================== -->
+    <!-- PESTAÑA 1: CASO 1 · PEDIDOS INTELIGENTES TOYOTA                    -->
+    <!-- ================================================================== -->
+    <section id="view-caso1" class="space-y-6">
+
+      <!-- Barra de Controles Reactivos + Exportación Excel -->
+      <div class="cp-glass-card p-5">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-4 border-b border-[#1C376C]">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              <span>⚙️ Parámetros Dinámicos del Motor S&amp;OP (Ventana Octubre 2026 · Arribo Febrero 2027)</span>
+              <span id="c1-loading-badge" class="hidden px-2 py-0.5 text-xs rounded bg-blue-500/30 text-blue-200 border border-blue-400/40 animate-pulse">
+                Recalculando...
+              </span>
+            </h2>
+            <p class="text-xs text-blue-200 mt-0.5">
+              Lead Time estándar: <strong>4 meses</strong> · Horizonte objetivo: <strong>Feb–Abr 2027 (3 meses) + Stock de Seguridad</strong> · Plan Piso: <strong>0.9% mensual</strong>.
+            </p>
+          </div>
+          <div class="flex items-center gap-2.5">
+            <button onclick="resetCaso1Params()" class="px-3.5 py-2 rounded-lg text-xs font-semibold bg-[#17217D] hover:bg-[#1C376C] border border-[#1C376C] text-blue-100 transition">
+              Restablecer Base (30d / 50%)
+            </button>
+            <button onclick="exportCaso1Excel()" class="cp-btn-action px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-2 shadow-lg">
+              <span>📥</span>
+              <span>Exportar Plan a Excel (.xlsx)</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4">
+          <!-- Slider 1: Días Stock de Seguridad -->
+          <div class="bg-[#17217D]/90 p-4 rounded-xl border border-[#1C376C]">
+            <div class="flex justify-between items-center mb-2">
+              <label for="c1-safety-days" class="text-xs font-semibold uppercase tracking-wider text-blue-200">
+                Días Cobertura Stock Seguridad
+              </label>
+              <span id="c1-safety-days-val" class="px-2.5 py-0.5 rounded-md text-sm font-bold bg-[#18489B] text-white border border-blue-400/40">
+                30 días (1.0M)
+              </span>
+            </div>
+            <input id="c1-safety-days" type="range" min="30" max="90" step="5" value="30" class="cp-slider" oninput="onCaso1ControlInput()" onchange="fetchCaso1Data()" />
+            <div class="flex justify-between text-[11px] text-blue-300 mt-1.5">
+              <span>30 días (1.0 mes)</span>
+              <span>60 días (2.0 meses)</span>
+              <span>90 días (3.0 meses)</span>
+            </div>
+          </div>
+
+          <!-- Slider 2: % Captura CRM Leads -->
+          <div class="bg-[#17217D]/90 p-4 rounded-xl border border-[#1C376C]">
+            <div class="flex justify-between items-center mb-2">
+              <label for="c1-crm-capture" class="text-xs font-semibold uppercase tracking-wider text-blue-200">
+                Captura Demanda Latente CRM Leads
+              </label>
+              <span id="c1-crm-capture-val" class="px-2.5 py-0.5 rounded-md text-sm font-bold bg-[#18489B] text-white border border-blue-400/40">
+                50%
+              </span>
+            </div>
+            <input id="c1-crm-capture" type="range" min="0" max="100" step="5" value="50" class="cp-slider" oninput="onCaso1ControlInput()" onchange="fetchCaso1Data()" />
+            <div class="flex justify-between text-[11px] text-blue-300 mt-1.5">
+              <span>0% (Solo Ventas Hist.)</span>
+              <span>50% (Base Prudente)</span>
+              <span>100% (Captura Total)</span>
+            </div>
+          </div>
+
+          <!-- Switch 3: Liquidación Controlada RAV4 -->
+          <div class="bg-[#17217D]/90 p-4 rounded-xl border border-[#1C376C] flex flex-col justify-between">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <span class="text-xs font-semibold uppercase tracking-wider text-blue-200 block">
+                  Política RAV4 (Comunicado 15/09/2026)
+                </span>
+                <p class="text-xs text-white font-medium mt-1">
+                  Liquidación controlada Gen. Actual (Stock $\rightarrow$ 0 al 30/Abr/2027)
+                </p>
+              </div>
+              <label class="relative inline-flex items-center cursor-pointer mt-1">
+                <input id="c1-rav4-toggle" type="checkbox" checked class="sr-only peer" onchange="fetchCaso1Data()" />
+                <div class="w-12 h-6 bg-[#0d165e] border border-[#1C376C] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
+              </label>
+            </div>
+            <p id="c1-rav4-status-note" class="text-[11px] text-emerald-300 mt-2">
+              Activo: 9 patio + 47 tránsito (44 pedido Jul-26) = 56 uds cubren Oct26–Abr27 sin pedir más unidades.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPIs Ejecutivos en Tiempo Real -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="cp-kpi-card p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-blue-200">Unidades Totales a Pedir</span>
+            <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-blue-500/20 text-blue-200 border border-blue-400/30">Ventana Oct-26</span>
+          </div>
+          <div id="kpi-c1-unidades" class="text-2xl sm:text-3xl font-extrabold text-white mt-2">426 uds</div>
+          <div id="kpi-c1-unidades-sub" class="text-xs text-blue-200 mt-1.5">Patio actual: 272 uds · En tránsito: 370 uds</div>
+        </div>
+
+        <div class="cp-kpi-card p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-blue-200">Capital Invertido Comprometido</span>
+            <span class="px-2 py-0.5 text-[11px] font-bold rounded bg-indigo-500/20 text-indigo-200 border border-indigo-400/30">FOB / Patio</span>
+          </div>
+          <div id="kpi-c1-capital" class="text-2xl sm:text-3xl font-extrabold text-white mt-2">$13,340,340</div>
+          <div id="kpi-c1-planpiso" class="text-xs text-amber-300 mt-1.5">Plan Piso (0.9%/mes): $120,063 / mes</div>
+        </div>
+
+        <div class="cp-kpi-card p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-blue-200">Margen Bruto Estimado</span>
+            <span id="kpi-c1-margen-pct" class="px-2 py-0.5 text-[11px] font-bold rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">10.98% s/ Venta</span>
+          </div>
+          <div id="kpi-c1-margen" class="text-2xl sm:text-3xl font-extrabold text-emerald-300 mt-2">$1,645,540</div>
+          <div id="kpi-c1-ingreso" class="text-xs text-blue-200 mt-1.5">Ingreso proyectado: $14,985,880 USD</div>
+        </div>
+
+        <div id="kpi-c1-risk-card" class="cp-kpi-card p-5">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-semibold uppercase tracking-wider text-blue-200">Riesgo de Obsolescencia</span>
+            <span id="kpi-c1-risk-badge" class="px-2 py-0.5 text-[11px] font-bold rounded bg-emerald-500/20 text-emerald-300 border border-emerald-400/30">MITIGADO</span>
+          </div>
+          <div id="kpi-c1-risk-title" class="text-xl sm:text-2xl font-extrabold text-white mt-2">RAV4: Pedido 0 uds</div>
+          <div id="kpi-c1-risk-sub" class="text-xs text-emerald-300 mt-1.5">56 uds actuales se liquidan a 0 antes de May-2027</div>
+        </div>
+      </div>
+
+      <!-- Visualizaciones ApexCharts: Barras Horizontales (Pedido vs Inventario) y Dona (Margen por Modelo) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="cp-glass-card p-5 lg:col-span-7">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-white">
+                📊 Pedido Recomendado Oct-2026 vs Inventario Actual (30/Sep) y Tránsito
+              </h3>
+              <p class="text-xs text-blue-200">
+                Comparativa en unidades por modelo cumpliendo estrictamente lotes mínimos y múltiplos de fábrica
+              </p>
+            </div>
+          </div>
+          <div id="chart-c1-bars" class="w-full h-[380px]"></div>
+        </div>
+
+        <div class="cp-glass-card p-5 lg:col-span-5">
+          <div class="flex items-center justify-between mb-2">
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-white">
+                🍩 Composición de Margen Bruto Estimado por Modelo (USD)
+              </h3>
+              <p class="text-xs text-blue-200">
+                Aporte financiero de cada línea al margen bruto total del pedido
+              </p>
+            </div>
+          </div>
+          <div id="chart-c1-donut" class="w-full h-[380px]"></div>
+        </div>
+      </div>
+
+      <!-- Tabla Maestra Interactiva de los 11 Modelos Oficiales -->
+      <div class="cp-glass-card p-5">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+          <div>
+            <h3 class="text-base font-bold text-white">
+              📋 Tabla Maestra de Planificación S&amp;OP — 11 Modelos Oficiales Toyota
+            </h3>
+            <p class="text-xs text-blue-200">
+              Ventas netas ajustadas por 9 Notas de Crédito (-9 uds) y 2 pedidos especiales de flota (105 uds) · Incluye Demanda Insatisfecha CRM
+            </p>
+          </div>
+          <span class="text-xs px-3 py-1 rounded-full bg-[#18489B] text-white border border-blue-400/30 font-medium">
+            Regla de Lote: Pedido = 0 ó Mínimo / Múltiplo
+          </span>
+        </div>
+
+        <div class="cp-table-container">
+          <table class="cp-table">
+            <thead>
+              <tr>
+                <th class="text-left">Modelo Oficial</th>
+                <th class="text-center">Lote (Mín/Múlt)</th>
+                <th class="text-right">Inv. Actual (30/Sep)</th>
+                <th class="text-right">En Tránsito (Oct–Ene)</th>
+                <th class="text-right">Demanda Oct26–Ene27</th>
+                <th class="text-right">Stock Proy. (31/Ene)</th>
+                <th class="text-right">Demanda Feb–Abr</th>
+                <th class="text-right">Stock Seg. Obj.</th>
+                <th class="text-right">Pedido Bruto</th>
+                <th class="text-right">Pedido Final (Uds)</th>
+                <th class="text-right">Inversión (USD)</th>
+                <th class="text-right">Margen (USD)</th>
+                <th class="text-center">Estado / Regla</th>
+              </tr>
+            </thead>
+            <tbody id="table-c1-models-body"></tbody>
+            <tfoot id="table-c1-models-foot" class="bg-[#0b1354] font-bold text-white border-t-2 border-blue-400"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Curva Mensual de Inventario (Plotly) y Mezcla por Versión/Color -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="cp-glass-card p-5 lg:col-span-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-white">
+                📈 Curva Proyectada de Inventario vs Demanda (Sep 2026 – Abr 2027)
+              </h3>
+              <p class="text-xs text-blue-200">Simulación mes a mes con llegadas de tránsito y arribo del pedido en Feb-2027</p>
+            </div>
+            <select id="c1-curve-model-select" onchange="renderCaso1TrajectoryChart()" class="bg-[#17217D] text-white text-xs font-semibold px-3 py-2 rounded-lg border border-[#1C376C] focus:outline-none focus:border-blue-400">
+              <option value="ALL">Todos los Modelos (Consolidado)</option>
+            </select>
+          </div>
+          <div id="chart-c1-trajectory" class="w-full h-[360px]"></div>
+        </div>
+
+        <div class="cp-glass-card p-5 lg:col-span-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-white">
+                🎨 Mezcla Óptima Recomendada por Versión y Color (Hamilton)
+              </h3>
+              <p class="text-xs text-blue-200">Asignación exacta según velocidad de rotación histórica y quiebres CRM</p>
+            </div>
+            <select id="c1-mix-model-select" onchange="renderCaso1MixChart()" class="bg-[#17217D] text-white text-xs font-semibold px-3 py-2 rounded-lg border border-[#1C376C] focus:outline-none focus:border-blue-400">
+            </select>
+          </div>
+          <div id="chart-c1-mix" class="w-full h-[360px]"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ================================================================== -->
+    <!-- PESTAÑA 2: CASO 2 · ORQUESTADOR DE RENOVACIONES CAPESA             -->
+    <!-- ================================================================== -->
+    <section id="view-caso2" class="hidden space-y-6">
+
+      <!-- Banner de Auditoría Forense + Exportación -->
+      <div class="cp-glass-card p-5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h2 class="text-base sm:text-lg font-bold text-white">
+              🛡️ Diagnóstico Operativo, Priorización Predictiva P(Fuga) y Arquitectura de 3 Carriles
+            </h2>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/20 text-blue-200 border border-blue-400/30">
+              ROC-AUC: 0.7101 Logit · 0.7509 GBM
+            </span>
+          </div>
+          <p class="text-xs text-blue-200 mt-1">
+            Auditoría: <strong>25,351 filas brutas</strong> &rarr; <strong>151 pólizas duplicadas eliminadas</strong> &rarr; <strong>25,200 pólizas únicas</strong> · Mediana actual de contacto: <strong>4 días</strong> (Meta: 20 días) · <strong>577 contactadas post-vencimiento</strong>.
+          </p>
+        </div>
+        <div class="flex items-center gap-3">
+          <button onclick="exportCaso2Excel()" class="cp-btn-action px-4 py-2 rounded-lg text-xs sm:text-sm font-semibold flex items-center gap-2 shadow-lg">
+            <span>📥</span>
+            <span>Descargar Bandeja Priorizada (.xlsx)</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 1. Panel de Diagnóstico Ejecutivo (3 Gráficos Interactivos) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Gráfico 1: Curva de Retención vs Días de Anticipación -->
+        <div class="cp-glass-card p-5">
+          <h3 class="text-sm font-bold text-white">
+            1️⃣ Curva de Renovación Manual vs Días de Anticipación
+          </h3>
+          <p class="text-xs text-blue-200 mb-2">
+            Contactar a &ge;20 días logra <strong>69.7%</strong> de éxito vs <strong>31.3%</strong> a &le;3 días y <strong>16.1%</strong> post-vencimiento
+          </p>
+          <div id="chart-c2-anticipation" class="w-full h-[310px]"></div>
+        </div>
+
+        <!-- Gráfico 2: Llamadas por Forma de Pago (12.6% malgastado) -->
+        <div class="cp-glass-card p-5">
+          <h3 class="text-sm font-bold text-white">
+            2️⃣ Ineficiencia de Llamadas por Forma de Pago (Bitácora)
+          </h3>
+          <p class="text-xs text-blue-200 mb-2">
+            <strong>9,808 llamadas (12.6%)</strong> dedicadas a Domiciliado (94.5%) y Financiado (91.0%)
+          </p>
+          <div id="chart-c2-payment" class="w-full h-[310px]"></div>
+        </div>
+
+        <!-- Gráfico 3: Quiebre Estructural Diciembre 2025 (Salida G06 y G07) -->
+        <div class="cp-glass-card p-5">
+          <h3 class="text-sm font-bold text-white">
+            3️⃣ Quiebre Estructural Dic-2025 (Salida de G06 y G07: 7 &rarr; 5 Gestores)
+          </h3>
+          <p class="text-xs text-blue-200 mb-2">
+            La carga subió de <strong>292 a 381 pólizas/gestor</strong> y la renovación cayó de <strong>62.0% a 50.6%</strong>
+          </p>
+          <div id="chart-c2-break" class="w-full h-[310px]"></div>
+        </div>
+      </div>
+
+      <!-- 2. Diagrama Visual de los 3 Carriles Operativos -->
+      <div class="cp-glass-card p-5 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h3 class="text-base font-bold text-white">
+              🚀 Arquitectura Operativa de 3 Carriles (Rediseño del Proceso de Renovación)
+            </h3>
+            <p class="text-xs text-blue-200">
+              Elimina el desperdicio telefónico en cobros automáticos, asegura contacto temprano a T-25 días y focaliza a los 5 gestores en el Valor en Riesgo
+            </p>
+          </div>
+          <span class="text-xs px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 font-semibold">
+            Top 30% Cartera Manual = 56.5% del Valor en Riesgo
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <!-- Carril 1 -->
+          <div class="bg-[#17217D] border border-[#1C376C] border-l-4 border-l-sky-400 rounded-xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-sky-300">Carril 1 · T-30 Días</span>
+                <span class="px-2 py-0.5 text-[11px] rounded bg-sky-500/20 text-sky-200">Zero-Touch Digital</span>
+              </div>
+              <h4 class="text-sm font-bold text-white mt-1.5">Domiciliado y Financiado (4,629 pólizas)</h4>
+              <p class="text-xs text-blue-200 mt-1">
+                Notificación digital automática + validación de cargo bancario/crédito sin llamadas humanas en frío. Alerta al gestor únicamente si el cargo es rechazado.
+              </p>
+            </div>
+            <div class="mt-3 pt-3 border-t border-[#1C376C] flex items-center justify-between text-xs">
+              <span class="text-blue-200">Capacidad liberada: <strong>9,054 llamadas/año</strong></span>
+              <span id="lane1-roi-badge" class="font-bold text-emerald-300">+$21,368 USD/año</span>
+            </div>
+          </div>
+
+          <!-- Carril 2 -->
+          <div class="bg-[#17217D] border border-[#1C376C] border-l-4 border-l-emerald-400 rounded-xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-300">Carril 2 · T-25 Días</span>
+                <span class="px-2 py-0.5 text-[11px] rounded bg-emerald-500/20 text-emerald-200">Agente IA Conversacional</span>
+              </div>
+              <h4 class="text-sm font-bold text-white mt-1.5">Pre-Contacto 100% Manual (20,571 pólizas)</h4>
+              <p class="text-xs text-blue-200 mt-1">
+                Bot de WhatsApp + Voz IA contacta a T-25 días con la cotización lista, garantiza la ventana &ge;20 días, filtra teléfonos erróneos y cierra renovaciones simples con link de pago.
+              </p>
+            </div>
+            <div class="mt-3 pt-3 border-t border-[#1C376C] flex items-center justify-between text-xs">
+              <span id="lane2-pol-badge" class="text-blue-200">Retención por timing: <strong>+3,225 pól/año</strong></span>
+              <span id="lane2-roi-badge" class="font-bold text-emerald-300">+$488,529 USD/año</span>
+            </div>
+          </div>
+
+          <!-- Carril 3 -->
+          <div class="bg-[#17217D] border border-[#1C376C] border-l-4 border-l-amber-400 rounded-xl p-4 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-300">Carril 3 · T-20 Días</span>
+                <span class="px-2 py-0.5 text-[11px] rounded bg-amber-500/20 text-amber-200">5 Gestores + Copiloto IA</span>
+              </div>
+              <h4 class="text-sm font-bold text-white mt-1.5">Bandeja Ordenada por Valor en Riesgo (USD)</h4>
+              <p class="text-xs text-blue-200 mt-1">
+                Los 5 gestores (G01–G05) negocian las cuentas de mayor comisión y riesgo asistidos por el Copiloto IA con recotización defensiva multi-aseguradora ante subidas de prima.
+              </p>
+            </div>
+            <div class="mt-3 pt-3 border-t border-[#1C376C] flex items-center justify-between text-xs">
+              <span id="lane3-pol-badge" class="text-blue-200">Negociación humana: <strong>+370 pól/año</strong></span>
+              <span id="lane3-roi-badge" class="font-bold text-emerald-300">+$67,485 USD/año</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. Simulador de ROI para el Comité Directivo + Gráfico de Impacto Financiero -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div class="cp-glass-card p-5 lg:col-span-7 space-y-4">
+          <div class="flex items-center justify-between border-b border-[#1C376C] pb-3">
+            <div>
+              <h3 class="text-base font-bold text-white">
+                🎛️ Simulador de ROI en Tiempo Real para el Comité Directivo
+              </h3>
+              <p class="text-xs text-blue-200">
+                Ajusta la efectividad de los carriles para simular las comisiones anuales rescatadas en USD
+              </p>
+            </div>
+            <span id="c2-loading-badge" class="hidden px-2 py-0.5 text-xs rounded bg-blue-500/30 text-blue-200 animate-pulse">
+              Actualizando ROI...
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-[#17217D] p-3.5 rounded-xl border border-[#1C376C]">
+              <div class="flex justify-between items-center mb-1.5">
+                <label class="text-[11px] font-semibold uppercase text-blue-200">Anticipación Bot T-25</label>
+                <span id="c2-sim-days-val" class="text-xs font-bold px-2 py-0.5 rounded bg-[#18489B] text-white">22 días</span>
+              </div>
+              <input id="c2-sim-days" type="range" min="10" max="25" step="1" value="22" class="cp-slider" oninput="onCaso2SimInput()" onchange="fetchCaso2Priorizacion()" />
+              <p class="text-[10px] text-blue-300 mt-1">Meta corporativa: &ge;20 días (Actual: 4d)</p>
+            </div>
+
+            <div class="bg-[#17217D] p-3.5 rounded-xl border border-[#1C376C]">
+              <div class="flex justify-between items-center mb-1.5">
+                <label class="text-[11px] font-semibold uppercase text-blue-200">Auto-Cierre Bot IA</label>
+                <span id="c2-sim-ai-val" class="text-xs font-bold px-2 py-0.5 rounded bg-[#18489B] text-white">35%</span>
+              </div>
+              <input id="c2-sim-ai" type="range" min="10" max="70" step="5" value="35" class="cp-slider" oninput="onCaso2SimInput()" onchange="fetchCaso2Priorizacion()" />
+              <p class="text-[10px] text-blue-300 mt-1">% cierre digital en bajo riesgo</p>
+            </div>
+
+            <div class="bg-[#17217D] p-3.5 rounded-xl border border-[#1C376C]">
+              <div class="flex justify-between items-center mb-1.5">
+                <label class="text-[11px] font-semibold uppercase text-blue-200">Uplift Negociación</label>
+                <span id="c2-sim-human-val" class="text-xs font-bold px-2 py-0.5 rounded bg-[#18489B] text-white">6%</span>
+              </div>
+              <input id="c2-sim-human" type="range" min="0" max="20" step="1" value="6" class="cp-slider" oninput="onCaso2SimInput()" onchange="fetchCaso2Priorizacion()" />
+              <p class="text-[10px] text-blue-300 mt-1">Reducción adicional P(Fuga) con Copiloto</p>
+            </div>
+          </div>
+
+          <!-- KPIs del Simulador ROI -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1">
+            <div class="cp-kpi-card p-3.5">
+              <span class="text-[11px] uppercase text-blue-200 font-semibold block">Comisiones Rescatadas</span>
+              <div id="kpi-c2-roi-usd" class="text-lg sm:text-xl font-extrabold text-emerald-300 mt-1">+$577,382</div>
+              <span class="text-[11px] text-blue-200">USD anuales netos</span>
+            </div>
+            <div class="cp-kpi-card p-3.5">
+              <span class="text-[11px] uppercase text-blue-200 font-semibold block">Renovación Global</span>
+              <div id="kpi-c2-renov-global" class="text-lg sm:text-xl font-extrabold text-white mt-1">69.26%</div>
+              <span id="kpi-c2-renov-delta" class="text-[11px] text-emerald-300">+15.87 pp vs 53.38%</span>
+            </div>
+            <div class="cp-kpi-card p-3.5">
+              <span class="text-[11px] uppercase text-blue-200 font-semibold block">Pólizas Recuperadas</span>
+              <div id="kpi-c2-polizas-rec" class="text-lg sm:text-xl font-extrabold text-white mt-1">+3,692</div>
+              <span id="kpi-c2-manual-rate" class="text-[11px] text-blue-200">Manual: 44.5% &rarr; 63.5%</span>
+            </div>
+            <div class="cp-kpi-card p-3.5">
+              <span class="text-[11px] uppercase text-blue-200 font-semibold block">Carga 5 Gestores</span>
+              <div id="kpi-c2-cap-pct" class="text-lg sm:text-xl font-extrabold text-sky-300 mt-1">58.0%</div>
+              <span id="kpi-c2-cap-calls" class="text-[11px] text-blue-200">3,116 / 5,375 llam/mes</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gráfico de Barras de Impacto Financiero de Comisiones Recuperadas -->
+        <div class="cp-glass-card p-5 lg:col-span-5">
+          <h3 class="text-sm sm:text-base font-bold text-white">
+            💰 Impacto Financiero Anual: Comisiones Rescatadas por Carril (USD)
+          </h3>
+          <p class="text-xs text-blue-200 mb-2">
+            Comparativa de comisiones anuales actuales vs proyectadas y aporte por carril
+          </p>
+          <div id="chart-c2-roi-bars" class="w-full h-[295px]"></div>
+        </div>
+      </div>
+
+      <!-- 4. Bandeja Inteligente de los 5 Gestores (G01 a G05) + Copiloto IA -->
+      <div class="cp-glass-card p-5 space-y-4">
+        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 border-b border-[#1C376C] pb-4">
+          <div>
+            <h3 class="text-base font-bold text-white flex items-center gap-2">
+              <span>🎯 Bandeja de Trabajo Inteligente para los 5 Gestores Activos (G01 a G05)</span>
+            </h3>
+            <p class="text-xs text-blue-200">
+              Ordenada por <strong>Valor en Riesgo (USD) = Prima Renovación × % Comisión × P(Fuga)</strong> · Haz clic en cualquier póliza para abrir el <strong>Copiloto IA de Retención</strong>.
+            </p>
+          </div>
+
+          <!-- Filtros de la Bandeja -->
+          <div class="flex flex-wrap items-center gap-2.5">
+            <select id="c2-filter-gestor" onchange="fetchCaso2Priorizacion()" class="bg-[#17217D] text-white text-xs font-semibold px-3 py-2 rounded-lg border border-[#1C376C] focus:outline-none focus:border-blue-400">
+              <option value="ALL">Todos los Gestores (G01–G05)</option>
+              <option value="G01">G01 · Ernesto Ramón Altamirano</option>
+              <option value="G02">G02 · Luis Fernando Gaitán</option>
+              <option value="G03">G03 · Karla Vanessa Úbeda</option>
+              <option value="G04">G04 · Martha Elena Zeledón</option>
+              <option value="G05">G05 · Ana Lucía Morales</option>
+            </select>
+
+            <select id="c2-filter-ramo" onchange="fetchCaso2Priorizacion()" class="bg-[#17217D] text-white text-xs font-semibold px-3 py-2 rounded-lg border border-[#1C376C] focus:outline-none focus:border-blue-400">
+              <option value="ALL">Todos los Ramos</option>
+              <option value="Autos">Autos</option>
+              <option value="Médico">Médico</option>
+              <option value="Daños / Hogar">Daños / Hogar</option>
+              <option value="Vida">Vida</option>
+            </select>
+
+            <label class="inline-flex items-center gap-2 text-xs text-blue-100 bg-[#17217D] px-3 py-2 rounded-lg border border-[#1C376C] cursor-pointer">
+              <input id="c2-filter-risk" type="checkbox" checked onchange="fetchCaso2Priorizacion()" class="rounded text-blue-500 focus:ring-0" />
+              <span>Solo Pólizas en Riesgo / No Renovadas</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-blue-200">
+          <span id="c2-table-summary-text">Mostrando top 100 pólizas priorizadas...</span>
+          <span class="text-amber-300 font-medium">💡 Clic en cualquier fila o en "Copiloto IA" para generar guion y contraoferta</span>
+        </div>
+
+        <div class="cp-table-container max-h-[440px]">
+          <table class="cp-table">
+            <thead class="sticky top-0 z-10">
+              <tr>
+                <th class="text-center"># Rank</th>
+                <th class="text-left">Póliza</th>
+                <th class="text-center">Gestor</th>
+                <th class="text-left">Cliente / Teléfono</th>
+                <th class="text-left">Ramo / Segmento</th>
+                <th class="text-left">Aseguradora Actual</th>
+                <th class="text-center">Vencimiento</th>
+                <th class="text-right">Prima Ant.</th>
+                <th class="text-right">Prima Renov.</th>
+                <th class="text-right">% Cambio</th>
+                <th class="text-right">P(Fuga)</th>
+                <th class="text-right">Valor en Riesgo (USD)</th>
+                <th class="text-center">Acción IA</th>
+              </tr>
+            </thead>
+            <tbody id="table-c2-policies-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ==================================================================== -->
+  <!-- MODAL / TARJETA LATERAL: MÓDULO COPILOTO IA DE RETENCIÓN (CASO 2)     -->
+  <!-- ==================================================================== -->
+  <div id="copilot-modal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-end">
+    <div class="bg-[#122092] border-l-2 border-[#1C376C] w-full max-w-2xl h-full overflow-y-auto p-6 shadow-2xl space-y-5 animate-fade-in">
+      
+      <!-- Encabezado del Modal -->
+      <div class="flex items-start justify-between border-b border-[#1C376C] pb-4">
+        <div>
+          <span class="px-2.5 py-0.5 text-xs font-bold rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40">
+            🤖 COPILOTO IA · ASISTENTE DE NEGOCIACIÓN EN TIEMPO REAL
+          </span>
+          <h3 id="cop-title" class="text-lg sm:text-xl font-extrabold text-white mt-2">
+            Póliza CAP-AU-000000
+          </h3>
+          <p id="cop-subtitle" class="text-xs text-blue-200 mt-0.5">
+            Cliente CLI-000000 · Gestor asignado: G01
+          </p>
+        </div>
+        <button onclick="closeCopilotModal()" class="p-2 rounded-lg bg-[#17217D] hover:bg-[#1C376C] text-white border border-[#1C376C] text-sm font-bold">
+          ✕ Cerrar
+        </button>
+      </div>
+
+      <!-- KPIs de la Póliza Seleccionada -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div class="bg-[#17217D] p-3 rounded-xl border border-[#1C376C]">
+          <span class="text-[11px] text-blue-200 block">Probabilidad Fuga</span>
+          <span id="cop-pfuga" class="text-lg font-extrabold text-rose-400">78.4%</span>
+        </div>
+        <div class="bg-[#17217D] p-3 rounded-xl border border-[#1C376C]">
+          <span class="text-[11px] text-blue-200 block">Valor en Riesgo</span>
+          <span id="cop-risk-usd" class="text-lg font-extrabold text-amber-300">$412.50</span>
+        </div>
+        <div class="bg-[#17217D] p-3 rounded-xl border border-[#1C376C]">
+          <span class="text-[11px] text-blue-200 block">Prima Renovación</span>
+          <span id="cop-prima-ren" class="text-lg font-extrabold text-white">$1,850.00</span>
+          <span id="cop-cambio-pct" class="text-[11px] text-rose-300 block">+14.2% vs ant.</span>
+        </div>
+        <div class="bg-[#17217D] p-3 rounded-xl border border-[#1C376C]">
+          <span class="text-[11px] text-blue-200 block">Contraoferta IA</span>
+          <span id="cop-prima-alt" class="text-lg font-extrabold text-emerald-300">$1,640.00</span>
+          <span id="cop-ahorro" class="text-[11px] text-emerald-300 block">Ahorro: $210.00</span>
+        </div>
+      </div>
+
+      <!-- Guion Comercial Recomendado (Tarjeta de Alto Contraste #FFFFFF) -->
+      <div class="cp-high-contrast-card p-5 space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-extrabold uppercase tracking-wider text-[#122092] flex items-center gap-1.5">
+            <span>🗣️ Guion de Retención Personalizado (WhatsApp / Llamada)</span>
+          </span>
+          <button onclick="copyCopilotScript()" id="btn-copy-script" class="px-3 py-1 rounded-md text-xs font-semibold bg-[#18489B] text-white hover:bg-blue-700 transition">
+            📋 Copiar Guion
+          </button>
+        </div>
+        <p id="cop-script-text" class="text-xs sm:text-sm leading-relaxed text-slate-800 font-medium"></p>
+      </div>
+
+      <!-- Factores Críticos de Riesgo Detectados -->
+      <div class="bg-[#17217D] p-4 rounded-xl border border-[#1C376C] space-y-2">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-blue-200">
+          🔍 Diagnóstico de Impulsores de Riesgo de la Póliza
+        </h4>
+        <ul id="cop-risk-factors" class="list-disc list-inside text-xs text-white space-y-1"></ul>
+      </div>
+
+      <!-- Matriz de Cotización Alternativa Multi-Aseguradora -->
+      <div class="space-y-2">
+        <h4 class="text-xs font-bold uppercase tracking-wider text-blue-200">
+          📊 Matriz de Contraoferta Multi-Aseguradora (Portafolio Capesa)
+        </h4>
+        <div class="cp-table-container">
+          <table class="cp-table">
+            <thead>
+              <tr>
+                <th class="text-left">Opción Comercial</th>
+                <th class="text-left">Aseguradora</th>
+                <th class="text-right">Prima Anual</th>
+                <th class="text-right">Var. vs Ant.</th>
+                <th class="text-right">Ahorro Cliente</th>
+                <th class="text-right">Comisión Capesa</th>
+              </tr>
+            </thead>
+            <tbody id="cop-quotes-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PIE DE PÁGINA EJECUTIVO -->
+  <footer class="max-w-[1600px] mx-auto px-4 sm:px-6 py-6 text-center text-xs text-blue-300 border-t border-[#1C376C]/60 mt-8">
+    Grupo Casa Pellas · AI Executive Decision Suite · FastAPI + Uvicorn + ApexCharts + Plotly.js · Datos ficticios para evaluación técnica
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
+

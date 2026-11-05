@@ -24,7 +24,7 @@ from docx.shared import Inches, Pt, RGBColor
 from src.caso1_engine import run_caso1_pipeline
 from src.caso2_engine import run_caso2_pipeline
 
-RENDER_URL = "https://casa-pellas-ia.onrender.com"
+RENDER_URL = "https://casa-pellas-ia-suite.onrender.com/"
 GITHUB_URL = "https://github.com/Arley-Economist-Dev/prueba-ia-engineer"
 
 

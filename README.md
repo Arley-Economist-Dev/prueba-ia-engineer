@@ -2,9 +2,10 @@
 
 Plataforma unificada de **S&OP (Sales & Operations Planning)** y **Optimización Comercial Predictiva** desarrollada para el proceso de selección de **Senior AI Engineer & Operations Research Lead** en **Grupo Casa Pellas**.
 
-* **🌐 Aplicación Web en Producción (Render):** [https://casa-pellas-ia.onrender.com](https://casa-pellas-ia.onrender.com)
+* **🌐 Aplicación Web en Producción (Render):** [https://casa-pellas-ia-suite.onrender.com/](https://casa-pellas-ia-suite.onrender.com/)
 * **📁 Repositorio / Código Fuente:** [https://github.com/Arley-Economist-Dev/prueba-ia-engineer](https://github.com/Arley-Economist-Dev/prueba-ia-engineer)
-* **📊 Entregables Consolidados:** Carpeta `outputs/`
+* **⚡ Arquitectura Full-Stack:** Backend asíncrono `FastAPI + Uvicorn` (`main.py`, `src/api.py`) + Frontend `SPA HTML5 / Tailwind CSS / ApexCharts / Plotly.js` (`templates/index.html`, `static/app.js`)
+* **📊 Entregables Consolidados:** Carpeta `outputs/` y documento ejecutivo `Prueba Ingeniero IA - Entregable Final.docx`
 
 ---
 
@@ -29,11 +30,11 @@ python -m venv .venv
 pip install -r requirements.txt
 ```
 
-### Paso 3: Lanzar la aplicación web interactiva
+### Paso 3: Lanzar el servidor FastAPI + SPA de alto rendimiento
 ```bash
-streamlit run app.py
+uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 ```
-La aplicación se abrirá automáticamente en tu navegador web en `http://localhost:8501`.
+La aplicación SPA estará disponible de inmediato en tu navegador en `http://localhost:8000` (y la documentación interactiva OpenAPI/Swagger en `http://localhost:8000/docs`).
 
 ---
 
