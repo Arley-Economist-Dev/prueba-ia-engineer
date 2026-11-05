@@ -2,7 +2,7 @@
 
 Plataforma unificada de **S&OP (Sales & Operations Planning)** y **Optimización Comercial Predictiva** desarrollada para el proceso de selección de **Senior AI Engineer & Operations Research Lead** en **Grupo Casa Pellas**.
 
-* **🌐 Aplicación Web en Producción (Render):** [https://casa-pellas-ia-suite.onrender.com/](https://casa-pellas-ia-suite.onrender.com/)
+* **🌐 Aplicación Web en Producción (Render):** [https://casa-pellas-ia-suite.onrender.com/](https://casa-pellas-ia-suite.onrender.com/) *(Nota: Al ingresar por primera vez tras inactividad, aguarde ~30–50 segundos mientras el servidor en la nube despierta y pre-carga los modelos en memoria RAM; una vez activo, responde en <25 ms).*
 * **📁 Repositorio / Código Fuente:** [https://github.com/Arley-Economist-Dev/prueba-ia-engineer](https://github.com/Arley-Economist-Dev/prueba-ia-engineer)
 * **⚡ Arquitectura Full-Stack:** Backend asíncrono `FastAPI + Uvicorn` (`main.py`, `src/api.py`) + Frontend `SPA HTML5 / Tailwind CSS / ApexCharts / Plotly.js` (`templates/index.html`, `static/app.js`)
 * **📊 Entregables Consolidados:** Carpeta `outputs/` y documento ejecutivo `Prueba Ingeniero IA - Entregable Final.docx`

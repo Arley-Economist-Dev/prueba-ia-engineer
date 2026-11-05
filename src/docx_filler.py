@@ -257,12 +257,13 @@ def populate_caso1_response(composer: SequentialComposer, res1: Dict[str, Any]):
     version_sum = res1["version_mix_summary"]
 
     composer.add_callout_box(
-        "🔗 ACCESO DIRECTO AL PROTOTIPO FUNCIONAL Y SOPORTE REPRODUCIBLE (CASO 1)",
+        "🔗 ACCESO DIRECTO A LA APLICACIÓN WEB EN PRODUCCIÓN Y REPOSITORIO (CASO 1)",
         [
             f"• Aplicación Web Interactiva S&OP en Producción (Render): {RENDER_URL}",
-            f"• Repositorio de Código y Pipelines Reproducibles (GitHub): {GITHUB_URL}",
-            "• Motor Matemático y Reglas de Negocio: src/caso1_engine.py | Suite QA: test_pipeline.py",
-            "• Libro Excel Consolidado de Soporte: outputs/Pedido_Recomendado_Octubre_2026.xlsx",
+            f"• Repositorio Oficial de Código y Pipelines (GitHub): {GITHUB_URL}",
+            "• Nota de Carga en Render (Cold Start): Al abrir el enlace web por primera vez tras inactividad, por favor espere ~30 a 50 segundos mientras el contenedor en la nube despierta y pre-carga los modelos en memoria RAM. Una vez activo, todos los simuladores responden en <25 ms.",
+            "• Arquitectura: FastAPI + Uvicorn (main.py, src/api.py) | Motor S&OP: src/caso1_engine.py | Suite QA: test_pipeline.py",
+            "• Libro Excel Consolidado de Soporte: outputs/Pedido_Recomendado_Octubre_2026.xlsx (descargable también desde la aplicación web).",
         ],
         fill_hex="EFF6FF",
     )
@@ -559,9 +560,10 @@ def populate_caso1_response(composer: SequentialComposer, res1: Dict[str, Any]):
     composer.add_bullet(
         "Cómo Funciona el Prototipo S&OP con IA y Cómo se Mide: ",
         (
-            "El módulo src/caso1_engine.py y la interfaz web en Streamlit automatizan en cada trimestre el flujo completo: ingesta del Excel bruto -> "
+            "El motor matemático src/caso1_engine.py, expuesto mediante la API asíncrona en FastAPI (main.py y src/api.py) y la Single Page Application (SPA) "
+            "interactiva con ApexCharts y Plotly.js, automatizan en cada trimestre el flujo completo: ingesta del Excel bruto -> "
             "normalización automática de texto -> neteo de Notas de Crédito -> estimación de demanda híbrida (Ventas + CRM Stockout) -> proyección de "
-            "balance a 4 meses -> optimización entera por lotes -> desglose de versiones/colores y exportación a Excel. El desempeño del sistema se "
+            "balance a 4 meses -> optimización entera por lotes -> desglose de versiones/colores y exportación directa a Excel. El desempeño del sistema se "
             "mide con 4 KPIs trimestrales: (1) Tasa de Ventas Perdidas por Desabastecimiento en CRM (meta: reducir del 4.4% actual a <1.5% de los leads); "
             "(2) Días Promedio de Rotación en Patio (meta: <65 días, con 0 unidades >180 días); (3) Precisión del Pronóstico de Demanda (WMAPE <12%); y "
             "(4) ROIC Comercial Neto después de Plan Piso."
@@ -585,12 +587,13 @@ def populate_caso2_response(composer: SequentialComposer, res2: Dict[str, Any]):
     sim_m = sim["simulation_metrics"]
 
     composer.add_callout_box(
-        "🔗 ACCESO DIRECTO AL ORQUESTADOR DE RENOVACIONES Y COPILOTO IA (CASO 2)",
+        "🔗 ACCESO DIRECTO AL ORQUESTADOR DE RENOVACIONES Y COPILOTO IA EN PRODUCCIÓN (CASO 2)",
         [
-            f"• Aplicación Web Interactiva y Simulador ROI en Producción (Render): {RENDER_URL}",
-            f"• Repositorio de Código y Modelos Predictivos (GitHub): {GITHUB_URL}",
-            "• Motor Analítico y ML (Scikit-Learn): src/caso2_engine.py | Suite QA: test_pipeline.py",
-            "• Bandeja Priorizada Exportada: outputs/Bandeja_Priorizada_Capesa.xlsx",
+            f"• Aplicación Web Interactiva y Simulador ROI en Producción (Render): {RENDER_URL} (Pestaña: Caso 2 · Renovaciones Capesa)",
+            f"• Repositorio Oficial de Código y Modelos Predictivos (GitHub): {GITHUB_URL}",
+            "• Nota de Carga en Render (Cold Start): Al ingresar por primera vez tras un periodo de inactividad, aguarde ~30 a 50 segundos mientras el servidor en Render inicia y entrena/carga en memoria el modelo predictivo P(Fuga). Posteriormente, los filtros, el simulador ROI y el Copiloto IA operan en tiempo real (<25 ms).",
+            "• Arquitectura: FastAPI + Uvicorn (main.py, src/api.py) | Motor ML (Scikit-Learn): src/caso2_engine.py | Suite QA: test_pipeline.py",
+            "• Bandeja Priorizada Exportada: outputs/Bandeja_Priorizada_Capesa.xlsx (descargable también en vivo desde la plataforma).",
         ],
         fill_hex="F0FDF4",
     )
@@ -770,8 +773,8 @@ def populate_caso2_response(composer: SequentialComposer, res2: Dict[str, Any]):
     )
     composer.add_paragraph(
         text=(
-            "Para resolver el cuello de botella sin incrementar la planilla fija de gestores, se diseñó e implementó en src/caso2_engine.py "
-            "y app.py una Arquitectura de Orquestación Inteligente en 3 Carriles impulsada por un modelo de Machine Learning interpretable "
+            "Para resolver el cuello de botella sin incrementar la planilla fija de gestores, se diseñó e implementó en src/caso2_engine.py, "
+            "src/api.py y main.py una Arquitectura de Orquestación Inteligente en 3 Carriles impulsada por un modelo de Machine Learning interpretable "
             "(Regresión Logística calibrada con ROC-AUC = 0.7101 y Gradient Boosting con ROC-AUC = 0.7509 validados mediante Stratified 5-Fold CV) "
             "que estima la probabilidad de no renovación P(Fuga) de cada póliza Manual y calcula el índice de priorización económico:"
         ),
@@ -946,8 +949,9 @@ def populate_caso2_response(composer: SequentialComposer, res2: Dict[str, Any]):
         "1. Rol de los Agentes de IA en el Desarrollo (Antigravity Pair-Programming): ",
         (
             "Se utilizaron agentes de IA en Antigravity para acelerar la exploración programática inicial de los esquemas de ambos archivos Excel, "
-            "estructurar la arquitectura modular en Python (src/caso1_engine.py y src/caso2_engine.py), construir la interfaz ejecutiva interactiva "
-            "en Streamlit (app.py) con gráficos de Plotly, y automatizar la composición tipográfica de este entregable mediante python-docx (src/docx_filler.py)."
+            "estructurar la arquitectura modular en Python (src/caso1_engine.py y src/caso2_engine.py), construir la aplicación web Full-Stack "
+            "en FastAPI + Uvicorn (main.py, src/api.py) con interfaz Single Page Application (SPA) en HTML5, Tailwind CSS, ApexCharts y Plotly.js, "
+            "y automatizar la composición tipográfica de este entregable mediante python-docx (src/docx_filler.py)."
         ),
     )
     composer.add_bullet(
